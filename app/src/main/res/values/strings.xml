@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">PMA</string>
     <string name="action_settings">Settings</string>
+    <string name="notification">Obaveštenja</string>
+    <string name="settings">Podešavanja</string>
+    <string name="favourites">Omiljene rute</string>
+    <string name='all_routs'>Sve rute</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>
