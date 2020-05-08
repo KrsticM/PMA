@@ -19,4 +19,6 @@
     <string name="alarm_title">Uključi alarm</string>
     <string name="time_distance_title">Vremenska udaljenost autobusa</string>
     <string name="distance_title">Udaljenost autobusa u kilometrima</string>
+
+    <string name="title_item_detail">Detalji rute</string>
 </resources>

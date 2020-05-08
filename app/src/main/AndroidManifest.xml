@@ -21,6 +21,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".RouteDetailActivity"
+            android:label="@string/title_item_detail"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.pma.MainActivity" />
+        </activity>
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings">
             <meta-data
