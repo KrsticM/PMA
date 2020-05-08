@@ -7,4 +7,16 @@
     <string name='all_routs'>Sve rute</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_settings">Podešavanja</string>
+
+    <string name="location_header">Lokacija</string>
+    <string name="alarm_header">Podsetnik</string>
+
+    <string name="signature_title">Your signature</string>
+    <string name="city_title">Izaberi grad</string>
+
+    <!-- Sync Preferences -->
+    <string name="alarm_title">Uključi alarm</string>
+    <string name="time_distance_title">Vremenska udaljenost autobusa</string>
+    <string name="distance_title">Udaljenost autobusa u kilometrima</string>
 </resources>
