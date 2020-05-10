@@ -20,11 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.example.pma.content.Content;
 import com.example.pma.model.Route;
@@ -32,8 +32,6 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -70,6 +68,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     private GoogleMap mMap;
     private View mapView;
     private LocationManager locationManager;
+    private MySupportMapFragment mSupportMapFragment;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -103,11 +102,23 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         if (route != null) {
             // ((TextView) rootView.findViewById(R.id.route_detail)).setText(route.details);
         }
+        Activity activity = this.getActivity();
+        final NestedScrollView nestedScrollView = activity.findViewById(R.id.route_detail_container);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        mapView = mapFragment.getView();
+        mSupportMapFragment = (MySupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        if(mSupportMapFragment != null)
+            mSupportMapFragment.setListener(new MySupportMapFragment.OnTouchListener() {
+                @Override
+                public void onTouch() {
+                    nestedScrollView.requestDisallowInterceptTouchEvent(true);
+                }
+            });
+
+        //SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
+        //        .findFragmentById(R.id.map);
+
+        mSupportMapFragment.getMapAsync(this);
+        mapView = mSupportMapFragment.getView();
 
         Button timeTableButton = (Button) rootView.findViewById(R.id.time_table_button);
         timeTableButton.setOnClickListener(new View.OnClickListener()
@@ -115,11 +126,11 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public void onClick(View v)
             {
-                Toast.makeText(getActivity(), "Clicked", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(), "Clicked", Toast.LENGTH_LONG).show();
 
                 Intent activity2Intent = new Intent(getActivity(), TimeTableActivity.class);
                 route = Content.routesMap.get(getArguments().getString(ARG_ROUTE_ID));
-                Toast.makeText(getActivity(), route.content, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(), route.content, Toast.LENGTH_LONG).show();
                 activity2Intent.putExtra("route", route.content);
                 activity2Intent.putExtra("route_subtitle", "Liman 4 - Centar - Ž. Stanica"); // TODO: change this
                 startActivity(activity2Intent);
@@ -150,7 +161,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             // my location button set on right bottom position
             if (mapView != null &&
                     mapView.findViewById(Integer.parseInt("1")) != null) {
-                Log.e(TAG, "USAO ");
                 // Get the button view
                 View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
                 // and next place it, on bottom right (as Google Maps app)
@@ -206,12 +216,12 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(getActivity(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
+        //Toast.makeText(getActivity(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public boolean onMyLocationButtonClick() {
-        Toast.makeText(getActivity(), "MyLocation button clicked", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(), "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;

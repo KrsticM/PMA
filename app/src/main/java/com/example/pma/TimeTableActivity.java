@@ -2,7 +2,6 @@ package com.example.pma;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,10 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 public class TimeTableActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -53,7 +48,6 @@ public class TimeTableActivity extends AppCompatActivity implements AdapterView.
         adapter.add("06:00, 05:27, 05:45");
         adapter.add("07:00, 05:27, 05:45");
         adapter.add("08:00, 05:27, 05:45");
-
 
         listView.setAdapter(adapter);
     }

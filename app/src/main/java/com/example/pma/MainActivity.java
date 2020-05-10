@@ -5,16 +5,12 @@ import android.os.Bundle;
 
 import com.example.pma.adapter.SimpleRouteRecyclerViewAdapter;
 import com.example.pma.content.Content;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.internal.NavigationMenuItemView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,9 +19,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.CompoundButton;
-import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -72,8 +65,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
-
-
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -119,19 +110,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        Toast.makeText(this, "Navigation item selected", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, "Navigation item selected", Toast.LENGTH_SHORT).show();
         switch (menuItem.getItemId()) {
             case R.id.all_routs:
-                Toast.makeText(this, "Kliknuto sve rute", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(this, "Kliknuto sve rute", Toast.LENGTH_SHORT).show();
                 Intent intent= new Intent(MainActivity.this,MainActivity.class);
                 startActivity(intent);
                 break;
             case R.id.settings:
-                Toast.makeText(this, "Kliknuto podesavanje", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(this, "Kliknuto podesavanje", Toast.LENGTH_SHORT).show();
                 Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intentSettings);
                 break;
-
         }
         return false;
     }
