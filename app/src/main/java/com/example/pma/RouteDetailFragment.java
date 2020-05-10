@@ -1,19 +1,48 @@
 package com.example.pma;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.pma.content.Content;
 import com.example.pma.model.Route;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.LatLng;
 
-public class RouteDetailFragment extends Fragment {
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+public class RouteDetailFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
+        GoogleMap.OnMyLocationClickListener, LocationListener {
+
+    private static final String TAG = "RouteDetailFragment";
 
     /**
      * The fragment argument representing the item ID that this fragment
@@ -33,6 +62,15 @@ public class RouteDetailFragment extends Fragment {
     public RouteDetailFragment() {
     }
 
+    /**
+     *
+     * Google maps
+     */
+    private GoogleMap mMap;
+    private LocationManager locationManager;
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,9 +82,11 @@ public class RouteDetailFragment extends Fragment {
             route = Content.routesMap.get(getArguments().getString(ARG_ROUTE_ID));
 
             Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(route.content);
+            Toolbar toolbarDetail = activity.findViewById(R.id.toolbar_detail);
+            if (toolbarDetail != null) {
+                Log.e(TAG, "route.content " + route.content);
+
+                toolbarDetail.setTitle(route.content);
             }
         }
     }
@@ -58,10 +98,112 @@ public class RouteDetailFragment extends Fragment {
 
         // Show the dummy content as text in a TextView.
         if (route != null) {
-            ((TextView) rootView.findViewById(R.id.route_detail)).setText(route.details);
+            // ((TextView) rootView.findViewById(R.id.route_detail)).setText(route.details);
         }
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        Button timeTableButton = (Button) rootView.findViewById(R.id.time_table_button);
+        timeTableButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Toast.makeText(getActivity(), "Clicked", Toast.LENGTH_LONG).show();
+
+                Intent activity2Intent = new Intent(getActivity(), TimeTableActivity.class);
+                route = Content.routesMap.get(getArguments().getString(ARG_ROUTE_ID));
+                Toast.makeText(getActivity(), route.content, Toast.LENGTH_LONG).show();
+                activity2Intent.putExtra("route", route.content);
+                startActivity(activity2Intent);
+            }
+        });
+
 
         return rootView;
     }
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        Log.e(TAG, "onMapReady");
+
+        UiSettings settings = mMap.getUiSettings();
+        settings.setZoomControlsEnabled(true);
+
+        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+            locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+           // mMap.moveCamera(CameraUpdateFactory.newLatLng());
+        } else {
+            ActivityCompat.requestPermissions(getActivity(), new String[] {
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION },
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+
+        // mMap.setMyLocationEnabled(true);
+        // mMap.setOnMyLocationButtonClickListener(this);
+        // mMap.setOnMyLocationClickListener(this);
+
+        // Add a marker in Sydney, Australia, and move the camera.
+        // LatLng sydney = new LatLng(-34, 151);
+        // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        // mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
+        mMap.animateCamera(cameraUpdate);
+        locationManager.removeUpdates(this);
+
+        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+
+            String address = addresses.get(0).getAddressLine(0);
+            Log.e(TAG, "address " + address);
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
+        Toast.makeText(getActivity(), "Current location:\n" + location, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        Toast.makeText(getActivity(), "MyLocation button clicked", Toast.LENGTH_SHORT).show();
+        // Return false so that we don't consume the event and the default behavior still occurs
+        // (the camera animates to the user's current position).
+        return false;
+    }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) { }
+
+    @Override
+    public void onProviderEnabled(String provider) { }
+
+    @Override
+    public void onProviderDisabled(String provider) { }
+
+
 }
 
