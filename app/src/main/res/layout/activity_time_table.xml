@@ -7,7 +7,39 @@
     tools:context=".TimeTableActivity"
     android:fitsSystemWindows="true">
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/proba"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:text="some text"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/desc_margin"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"
+            android:text="Dan:"/>
+
+        <Spinner
+            android:id="@+id/spinner_days"
+            style="@style/Widget.AppCompat.Spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/desc_margin"
+
+            />
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="46dp"
+        android:listSelector="@android:color/transparent"
+        >
+
+    </ListView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -19,10 +19,12 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -32,9 +34,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * device.
      */
     private boolean mTwoPane;
+
+    /**
+     * Reference to drawer.
+     */
     private DrawerLayout drawer;
 
-    ToggleButton toggleButton;
+    /**
+     * Reference to navigation view.
+     */
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +56,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        navigationView = (NavigationView)findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         if (findViewById(R.id.route_detail_container) != null) {
             // The detail container view will be present only in the
@@ -87,7 +101,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        //Toast.makeText(this, "on Options Item Selected", Toast.LENGTH_SHORT).show();
         int id = item.getItemId();
+
+        if(id == android.R.id.home){ // use android.R.id
+            drawer.openDrawer(Gravity.LEFT);
+        }
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -100,6 +119,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        Toast.makeText(this, "Navigation item selected", Toast.LENGTH_SHORT).show();
+        switch (menuItem.getItemId()) {
+            case R.id.all_routs:
+                Toast.makeText(this, "Kliknuto sve rute", Toast.LENGTH_SHORT).show();
+                Intent intent= new Intent(MainActivity.this,MainActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.settings:
+                Toast.makeText(this, "Kliknuto podesavanje", Toast.LENGTH_SHORT).show();
+                Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intentSettings);
+                break;
+
+        }
         return false;
     }
 }

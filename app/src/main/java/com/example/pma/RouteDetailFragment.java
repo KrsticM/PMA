@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.pma.content.Content;
@@ -67,6 +68,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
      * Google maps
      */
     private GoogleMap mMap;
+    private View mapView;
     private LocationManager locationManager;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -87,6 +89,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 Log.e(TAG, "route.content " + route.content);
 
                 toolbarDetail.setTitle(route.content);
+                toolbarDetail.setSubtitle("Liman 4 - Centar - Ž. Stanica"); // TODO: change this
             }
         }
     }
@@ -104,6 +107,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        mapView = mapFragment.getView();
 
         Button timeTableButton = (Button) rootView.findViewById(R.id.time_table_button);
         timeTableButton.setOnClickListener(new View.OnClickListener()
@@ -117,6 +121,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 route = Content.routesMap.get(getArguments().getString(ARG_ROUTE_ID));
                 Toast.makeText(getActivity(), route.content, Toast.LENGTH_LONG).show();
                 activity2Intent.putExtra("route", route.content);
+                activity2Intent.putExtra("route_subtitle", "Liman 4 - Centar - Ž. Stanica"); // TODO: change this
                 startActivity(activity2Intent);
             }
         });
@@ -132,8 +137,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
         Log.e(TAG, "onMapReady");
 
-        UiSettings settings = mMap.getUiSettings();
-        settings.setZoomControlsEnabled(true);
+        //UiSettings settings = mMap.getUiSettings();
+        //settings.setZoomControlsEnabled(true);
 
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
@@ -141,6 +146,22 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                         PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+            // my location button set on right bottom position
+            if (mapView != null &&
+                    mapView.findViewById(Integer.parseInt("1")) != null) {
+                Log.e(TAG, "USAO ");
+                // Get the button view
+                View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+                // and next place it, on bottom right (as Google Maps app)
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
+                        locationButton.getLayoutParams();
+
+                // position on right bottom
+                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+                layoutParams.setMargins(0, 0, 30, 30);
+            }
 
             locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);

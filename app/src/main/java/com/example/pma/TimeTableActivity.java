@@ -7,8 +7,21 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.Toast;
 
-public class TimeTableActivity extends AppCompatActivity {
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+public class TimeTableActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+
+    ListView listView;
+    ArrayAdapter<String> adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,8 +33,29 @@ public class TimeTableActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(getIntent().getExtras().getString("route"));
+            actionBar.setSubtitle(getIntent().getExtras().getString("route_subtitle"));
+
         }
 
+        // spiner
+        Spinner spinner_days = findViewById(R.id.spinner_days);
+        ArrayAdapter<CharSequence> spinerAdapter = ArrayAdapter.createFromResource(this, R.array.spinner_days, android.R.layout.simple_spinner_item);
+        spinerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner_days.setAdapter(spinerAdapter);
+        spinner_days.setOnItemSelectedListener(this);
+
+
+        // timetable
+        listView = findViewById(R.id.listView);
+        adapter = new ArrayAdapter<String>(this, R.layout.mytextview);
+        adapter.add("04:30");
+        adapter.add("05:00, 05:27, 05:45");
+        adapter.add("06:00, 05:27, 05:45");
+        adapter.add("07:00, 05:27, 05:45");
+        adapter.add("08:00, 05:27, 05:45");
+
+
+        listView.setAdapter(adapter);
     }
 
     @Override
@@ -38,5 +72,16 @@ public class TimeTableActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public  void onItemSelected(AdapterView<?> parent, View view, int position, long i) {
+        String text = parent.getItemAtPosition(position).toString();
+        // Toast.makeText(parent.getContext(), text, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
