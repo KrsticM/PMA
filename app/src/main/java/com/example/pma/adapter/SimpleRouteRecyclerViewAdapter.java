@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pma.MainActivity;
@@ -21,7 +22,7 @@ import java.util.List;
 
 public class SimpleRouteRecyclerViewAdapter extends RecyclerView.Adapter<SimpleRouteRecyclerViewAdapter.ViewHolder> {
 
-    private final MainActivity mParentActivity;
+    private final AppCompatActivity mParentActivity;
     private final List<Route> mValues;
     private final boolean mTwoPane;
 
@@ -47,7 +48,7 @@ public class SimpleRouteRecyclerViewAdapter extends RecyclerView.Adapter<SimpleR
         }
     };
 
-    public SimpleRouteRecyclerViewAdapter(MainActivity parent, List<Route> routes, boolean twoPane) {
+    public SimpleRouteRecyclerViewAdapter(AppCompatActivity parent, List<Route> routes, boolean twoPane) {
         mValues = routes;
         mParentActivity = parent;
         mTwoPane = twoPane;

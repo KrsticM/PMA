@@ -17,7 +17,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".TimeTableActivity"></activity>
+        <activity android:name=".FavouriteRoutesActivity" android:label="Omiljene rute">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity android:name=".TimeTableActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -51,11 +56,12 @@
         </activity>
         <activity
             android:name=".NewsActivity"
-            android:label = "Obaveštenja">
+            android:label="Obaveštenja">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+
     </application>
 
 </manifest>

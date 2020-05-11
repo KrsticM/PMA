@@ -75,6 +75,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "on create RouteDetailFragment ");
+
 
         if (getArguments().containsKey(ARG_ROUTE_ID)) {
             // Load the dummy content specified by the fragment
@@ -92,6 +94,9 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             }
         }
     }
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

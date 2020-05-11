@@ -2,6 +2,7 @@ package com.example.pma;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -22,6 +23,9 @@ import com.google.android.material.snackbar.Snackbar;
  */
 public class RouteDetailActivity extends AppCompatActivity {
 
+
+    private static final String TAG = "RouteDetailActivity";
+
     private GoogleMap mMap;
 
     private SupportMapFragment mapFragment;
@@ -30,6 +34,7 @@ public class RouteDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_detail);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_detail);
         if (toolbar != null) {
             toolbar.setTitle("DSA");
@@ -50,6 +55,7 @@ public class RouteDetailActivity extends AppCompatActivity {
         // back button
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
+            Log.e(TAG, "action Bar NIJE NULLLLLLLLLL");
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -91,4 +97,5 @@ public class RouteDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }

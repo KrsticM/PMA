@@ -126,6 +126,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent intentNews = new Intent (MainActivity.this,NewsActivity.class);
                 startActivity(intentNews);
                 break;
+            case R.id.favourite_routes:
+                Intent intentFavouriteRoutes = new Intent(MainActivity.this, FavouriteRoutesActivity.class);
+                startActivity(intentFavouriteRoutes);
+                break;
         }
         return false;
     }
