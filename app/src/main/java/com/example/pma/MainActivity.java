@@ -122,6 +122,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intentSettings);
                 break;
+            case R.id.warnings:
+                Intent intentNews = new Intent (MainActivity.this,NewsActivity.class);
+                startActivity(intentNews);
+                break;
         }
         return false;
     }
