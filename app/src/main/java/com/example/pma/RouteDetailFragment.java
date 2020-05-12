@@ -162,6 +162,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                         PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.getUiSettings().setZoomControlsEnabled(true);
 
             // my location button set on right bottom position
             if (mapView != null &&
@@ -175,7 +176,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 // position on right bottom
                 layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
                 layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-                layoutParams.setMargins(0, 0, 30, 30);
+                layoutParams.setMargins(0, 0, 30, 260);
             }
 
             locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
