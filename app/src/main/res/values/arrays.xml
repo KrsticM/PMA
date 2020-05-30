@@ -1,0 +1,34 @@
+<resources>
+    <!-- City Preference -->
+    <string-array name="city_entries">
+        <item>Novi Sad</item>
+        <item>Beograd</item>
+        <item>Subotica</item>
+        <item>Niš</item>
+    </string-array>
+
+    <string-array name="city_values">
+        <item>Novi Sad</item>
+        <item>Beograd</item>
+        <item>Subotica</item>
+        <item>Niš</item>
+    </string-array>
+
+    <!-- Time Preferences -->
+    <string-array name="time_entries">
+        <item>1 min</item>
+        <item>2 min</item>
+        <item>5 min</item>
+        <item>10 min</item>
+        <item>15 min</item>
+    </string-array>
+
+    <string-array name="time_values">
+        <item>1 min</item>
+        <item>2 min</item>
+        <item>5 min</item>
+        <item>10 min</item>
+        <item>15 min</item>
+    </string-array>
+
+</resources>

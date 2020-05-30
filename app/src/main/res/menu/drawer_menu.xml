@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/all_routs"
+            android:icon="@drawable/ic_list_routes"
+            android:title="@string/all_routs" />
+        <item
+            android:id="@+id/favourite_routes"
+            android:icon="@drawable/ic_favorite"
+            android:title="@string/favourites" />
+        <item
+            android:id="@+id/warnings"
+            android:icon="@drawable/ic_warning"
+            android:title="@string/notification" />
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settings" />
+    </group>
+</menu>
