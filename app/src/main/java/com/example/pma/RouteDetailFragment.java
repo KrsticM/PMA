@@ -18,12 +18,15 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.example.pma.content.Content;
@@ -32,7 +35,10 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.io.IOException;
 import java.util.List;
@@ -72,6 +78,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
+    private BottomSheetBehavior mBottomSheetBehavior;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,10 +101,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 toolbarDetail.setSubtitle("Liman 4 - Centar - Ž. Stanica"); // TODO: change this
             }
         }
+
     }
-
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -125,25 +131,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         mSupportMapFragment.getMapAsync(this);
         mapView = mSupportMapFragment.getView();
 
-        Button timeTableButton = (Button) rootView.findViewById(R.id.time_table_button);
-        timeTableButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                //Toast.makeText(getActivity(), "Clicked", Toast.LENGTH_LONG).show();
-
-                Intent activity2Intent = new Intent(getActivity(), TimeTableActivity.class);
-                route = Content.routesMap.get(getArguments().getString(ARG_ROUTE_ID));
-                //Toast.makeText(getActivity(), route.content, Toast.LENGTH_LONG).show();
-                activity2Intent.putExtra("route", route.content);
-                activity2Intent.putExtra("route_subtitle", "Liman 4 - Centar - Ž. Stanica"); // TODO: change this
-                startActivity(activity2Intent);
-            }
-        });
-
-
         return rootView;
+
     }
 
 
@@ -188,6 +177,12 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                             Manifest.permission.ACCESS_COARSE_LOCATION },
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
+
+        // TODO: za sada zakucano za jednu stanicu
+        LatLng busStop = new LatLng(45.238842, 19.833227);
+        mMap.addMarker(new MarkerOptions().position(busStop).title("NARODNOG FRONTA - BALZAKOVA")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+        mMap.getUiSettings().setMapToolbarEnabled(false);
 
         // mMap.setMyLocationEnabled(true);
         // mMap.setOnMyLocationButtonClickListener(this);

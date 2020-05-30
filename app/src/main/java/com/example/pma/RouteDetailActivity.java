@@ -5,13 +5,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.pma.content.Content;
+import com.example.pma.model.Route;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -26,23 +31,21 @@ public class RouteDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "RouteDetailActivity";
 
-    private GoogleMap mMap;
-
-    private SupportMapFragment mapFragment;
+    private BottomSheetBehavior mBottomSheetBehavior;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_detail);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_detail);
+        Toolbar toolbar = findViewById(R.id.toolbar_detail);
         if (toolbar != null) {
             toolbar.setTitle("DSA");
 
         }
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,6 +83,28 @@ public class RouteDetailActivity extends AppCompatActivity {
                     .add(R.id.route_detail_container, fragment)
                     .commit();
         }
+
+        View bottomSheet = findViewById(R.id.bottom_sheet);
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior.setHideable(false);
+
+
+        Button timeTableButton = findViewById(R.id.time_table_button);
+        timeTableButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                // Toast.makeText(RouteDetailActivity.this, "Clicked", Toast.LENGTH_LONG).show();
+                Intent activity2Intent = new Intent(RouteDetailActivity.this, TimeTableActivity.class);
+                Route route = Content.routesMap.get(getIntent().getStringExtra(RouteDetailFragment.ARG_ROUTE_ID));
+                // Toast.makeText(RouteDetailActivity.this, route.content, Toast.LENGTH_LONG).show();
+                activity2Intent.putExtra("route", route.content);
+                activity2Intent.putExtra("route_subtitle", "Liman 4 - Centar - Ž. Stanica"); // TODO: change this
+                startActivity(activity2Intent);
+            }
+        });
+
     }
 
     @Override
