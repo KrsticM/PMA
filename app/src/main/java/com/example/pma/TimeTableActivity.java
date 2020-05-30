@@ -27,8 +27,8 @@ public class TimeTableActivity extends AppCompatActivity implements AdapterView.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getIntent().getExtras().getString("route"));
-            actionBar.setSubtitle(getIntent().getExtras().getString("route_subtitle"));
+            actionBar.setTitle("Linija " + getIntent().getExtras().getString("route_name"));
+            actionBar.setSubtitle(getIntent().getExtras().getString("route_description"));
 
         }
 
@@ -41,6 +41,7 @@ public class TimeTableActivity extends AppCompatActivity implements AdapterView.
 
 
         // timetable
+        // Povuci timetable getExtrast.getId
         listView = findViewById(R.id.listView);
         adapter = new ArrayAdapter<String>(this, R.layout.mytextview);
         adapter.add("04:30");

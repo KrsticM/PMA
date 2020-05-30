@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.example.pma.adapter.SimpleRouteRecyclerViewAdapter;
-import com.example.pma.content.Content;
 
 public class FavouriteRoutesActivity extends AppCompatActivity {
 
@@ -26,6 +25,6 @@ public class FavouriteRoutesActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleRouteRecyclerViewAdapter(this, Content.routes, mTwoPane));
+       // recyclerView.setAdapter(new SimpleRouteRecyclerViewAdapter(this, Content.routes, mTwoPane));
     }
 }
