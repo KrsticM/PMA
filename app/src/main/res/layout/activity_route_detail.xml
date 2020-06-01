@@ -26,6 +26,8 @@
         android:id="@+id/route_detail_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:layout_marginBottom="55dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -39,6 +41,8 @@
         app:srcCompat="@android:drawable/btn_star_big_on"
         app:backgroundTint="@color/star"
         android:tint="@color/star_on"
+        app:maxImageSize="33dp"
+
         />
 
     <androidx.core.widget.NestedScrollView
@@ -184,6 +188,7 @@
                     android:textAlignment="center"
                     android:textAllCaps="false"
                     android:textColor="@color/white"/>
+
             </LinearLayout>
 
         </LinearLayout>

@@ -1,21 +1,20 @@
 package com.example.pma;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.example.pma.content.Content;
+import com.example.pma.database.DBContentProvider;
+import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.model.Route;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -32,6 +31,10 @@ public class RouteDetailActivity extends AppCompatActivity {
     private static final String TAG = "RouteDetailActivity";
 
     private BottomSheetBehavior mBottomSheetBehavior;
+
+    private Route route;
+
+    private Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +61,17 @@ public class RouteDetailActivity extends AppCompatActivity {
         // back button
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            Log.e(TAG, "action Bar NIJE NULLLLLLLLLL");
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        uri = Uri.parse(DBContentProvider.CONTENT_URI_ROUTE + "/" + getIntent().getIntExtra(RouteDetailFragment.ARG_ROUTE_ID, 0));
+
+        String[] allColumns = {RouteSQLiteHelper.COLUMN_ID, RouteSQLiteHelper.COLUMN_NAME, RouteSQLiteHelper.COLUMN_DESCRIPTION};
+
+        Cursor cursor = getContentResolver().query(uri, allColumns, null, null, null);
+        cursor.moveToFirst();
+        route = createRoute(cursor);
+        cursor.close();
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -75,13 +86,13 @@ public class RouteDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(RouteDetailFragment.ARG_ROUTE_ID,
-                    getIntent().getStringExtra(RouteDetailFragment.ARG_ROUTE_ID));
+            arguments.putInt(RouteDetailFragment.ARG_ROUTE_ID, route.getId());
+            arguments.putString("route_name", route.getName());
+            arguments.putString("route_description", route.getDescription());
+
             RouteDetailFragment fragment = new RouteDetailFragment();
             fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.route_detail_container, fragment)
-                    .commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.route_detail_container, fragment).commit();
         }
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
@@ -97,14 +108,23 @@ public class RouteDetailActivity extends AppCompatActivity {
             {
                 // Toast.makeText(RouteDetailActivity.this, "Clicked", Toast.LENGTH_LONG).show();
                 Intent activity2Intent = new Intent(RouteDetailActivity.this, TimeTableActivity.class);
-                Route route = Content.routesMap.get(getIntent().getStringExtra(RouteDetailFragment.ARG_ROUTE_ID));
                 // Toast.makeText(RouteDetailActivity.this, route.content, Toast.LENGTH_LONG).show();
-                activity2Intent.putExtra("route", route.content);
-                activity2Intent.putExtra("route_subtitle", "Liman 4 - Centar - Ž. Stanica"); // TODO: change this
+                activity2Intent.putExtra("route_id", route.getId());
+                activity2Intent.putExtra("route_name", route.getName());
+                activity2Intent.putExtra("route_description", route.getDescription());
                 startActivity(activity2Intent);
             }
         });
 
+    }
+
+
+    private Route createRoute(Cursor cursor) {
+        Route route = new Route();
+        route.setId(cursor.getInt(0));
+        route.setName(cursor.getString(1));
+        route.setDescription(cursor.getString(2));
+        return route;
     }
 
     @Override

@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,18 +20,15 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.example.pma.content.Content;
+import com.example.pma.database.DBContentProvider;
+import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.model.Route;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -38,7 +37,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,7 +56,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     /**
      * The content this fragment is presenting.
      */
-    private Route route;
+    //private Route route;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -78,8 +76,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
-    private BottomSheetBehavior mBottomSheetBehavior;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,15 +86,17 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            route = Content.routesMap.get(getArguments().getString(ARG_ROUTE_ID));
+            Log.e(TAG, "ARG_ROUTE_ID: " +  getArguments().getInt(ARG_ROUTE_ID));
+
+
 
             Activity activity = this.getActivity();
             Toolbar toolbarDetail = activity.findViewById(R.id.toolbar_detail);
             if (toolbarDetail != null) {
-                Log.e(TAG, "route.content " + route.content);
+                Log.e(TAG, "route.content " + getArguments().getString("route_name"));
 
-                toolbarDetail.setTitle(route.content);
-                toolbarDetail.setSubtitle("Liman 4 - Centar - Ž. Stanica"); // TODO: change this
+                toolbarDetail.setTitle("Linija " + getArguments().getString("route_name"));
+                toolbarDetail.setSubtitle(getArguments().getString("route_description"));
             }
         }
 
@@ -109,10 +107,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.route_detail, container, false);
 
-        // Show the dummy content as text in a TextView.
-        if (route != null) {
-            // ((TextView) rootView.findViewById(R.id.route_detail)).setText(route.details);
-        }
+
         Activity activity = this.getActivity();
         final NestedScrollView nestedScrollView = activity.findViewById(R.id.route_detail_container);
 
@@ -179,6 +174,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         }
 
         // TODO: za sada zakucano za jednu stanicu
+
+
         LatLng busStop = new LatLng(45.238842, 19.833227);
         mMap.addMarker(new MarkerOptions().position(busStop).title("NARODNOG FRONTA - BALZAKOVA")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));

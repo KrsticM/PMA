@@ -19,6 +19,7 @@ public class NewsActivity extends AppCompatActivity {
     String mDescription[] = {"Linija 1 menja vreme polazaka od datuma 12.06.2020", "Za vreme trajanja exita Linija 9 menja raspored polazaka", "Zbog trke na Mišeluku Most Slobode biće zatvoren za gradski saobraćaj"};
 
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news);
