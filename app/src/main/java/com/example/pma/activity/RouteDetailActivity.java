@@ -1,4 +1,4 @@
-package com.example.pma;
+package com.example.pma.activity;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,9 +12,13 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.pma.R;
+import com.example.pma.directionHelper.TaskLoadedCallback;
+import com.example.pma.fragment.RouteDetailFragment;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.model.Route;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -25,7 +29,7 @@ import com.google.android.material.snackbar.Snackbar;
  * item details are presented side-by-side with a list of items
  * in a {@link MainActivity}.
  */
-public class RouteDetailActivity extends AppCompatActivity {
+public class RouteDetailActivity extends AppCompatActivity implements TaskLoadedCallback {
 
 
     private static final String TAG = "RouteDetailActivity";
@@ -35,6 +39,8 @@ public class RouteDetailActivity extends AppCompatActivity {
     private Route route;
 
     private Uri uri;
+
+    private RouteDetailFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +96,7 @@ public class RouteDetailActivity extends AppCompatActivity {
             arguments.putString("route_name", route.getName());
             arguments.putString("route_description", route.getDescription());
 
-            RouteDetailFragment fragment = new RouteDetailFragment();
+            fragment = new RouteDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction().add(R.id.route_detail_container, fragment).commit();
         }
@@ -141,6 +147,16 @@ public class RouteDetailActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if(fragment.currentPolyline != null) {
+            fragment.currentPolyline.remove();
+        }
+
+        fragment.currentPolyline = fragment.mMap.addPolyline((PolylineOptions) values[0]);
+
     }
 
 }

@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".MainActivity"
+    tools:context=".activity.MainActivity"
     tools:listitem="@layout/route_list_content" />

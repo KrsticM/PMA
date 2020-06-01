@@ -1,4 +1,4 @@
-package com.example.pma;
+package com.example.pma.activity;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +11,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
+
+import com.example.pma.R;
+import com.example.pma.fragment.RouteDetailFragment;
 
 public class TimeTableActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 

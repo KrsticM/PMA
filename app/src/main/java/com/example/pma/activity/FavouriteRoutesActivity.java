@@ -1,4 +1,4 @@
-package com.example.pma;
+package com.example.pma.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.pma.R;
 import com.example.pma.adapter.SimpleRouteRecyclerViewAdapter;
 
 public class FavouriteRoutesActivity extends AppCompatActivity {

@@ -1,17 +1,14 @@
-package com.example.pma;
+package com.example.pma.fragment;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,18 +24,21 @@ import androidx.fragment.app.Fragment;
 
 import android.widget.RelativeLayout;
 
-import com.example.pma.database.DBContentProvider;
-import com.example.pma.database.RouteSQLiteHelper;
-import com.example.pma.model.Route;
+import com.example.pma.R;
+import com.example.pma.directionHelper.FetchURL;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,10 +69,15 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
      *
      * Google maps
      */
-    private GoogleMap mMap;
+    public GoogleMap mMap;
     private View mapView;
     private LocationManager locationManager;
     private MySupportMapFragment mSupportMapFragment;
+
+    private MarkerOptions place1, place2;
+    private List<MarkerOptions> markerOptionsList = new ArrayList<>();
+    public Polyline currentPolyline;
+
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -107,6 +112,13 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.route_detail, container, false);
 
+        // TODO: uzeti sve stanice za markere, a za polyline prvu i poslednju
+        place1 = new MarkerOptions().position(new LatLng(45.237077, 19.826358)).title("NARODNOG FRONTA - OKRETNICA").icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+        place2 = new MarkerOptions().position(new LatLng( 45.248134, 19.849265)).title("STRAŽILOVSKA - URBIS").icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+        new FetchURL(getActivity()).execute(getUrl(place1.getPosition(), place2.getPosition(), "driving"), "driving");
+
+        markerOptionsList.add(place1);
+        markerOptionsList.add(place2);
 
         Activity activity = this.getActivity();
         final NestedScrollView nestedScrollView = activity.findViewById(R.id.route_detail_container);
@@ -175,11 +187,15 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
         // TODO: za sada zakucano za jednu stanicu
 
+//        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+//        options.add(new LatLng(45.237077, 19.826358));
+//        options.add(new LatLng( 45.248134, 19.849265));
+//        mMap.addPolyline(options);
 
-        LatLng busStop = new LatLng(45.238842, 19.833227);
-        mMap.addMarker(new MarkerOptions().position(busStop).title("NARODNOG FRONTA - BALZAKOVA")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
-        mMap.getUiSettings().setMapToolbarEnabled(false);
+//        LatLng busStop = new LatLng(45.238842, 19.833227);
+//        mMap.addMarker(new MarkerOptions().position(busStop).title("NARODNOG FRONTA - BALZAKOVA")
+//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
+//        mMap.getUiSettings().setMapToolbarEnabled(false);
 
         // mMap.setMyLocationEnabled(true);
         // mMap.setOnMyLocationButtonClickListener(this);
@@ -189,6 +205,45 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         // LatLng sydney = new LatLng(-34, 151);
         // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         // mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        mMap.addMarker(place1);
+        mMap.addMarker(place2);
+
+        showAllMarkers();
+
+    }
+
+    private void showAllMarkers() {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+        for(MarkerOptions m: markerOptionsList) {
+            builder.include(m.getPosition());
+        }
+
+        LatLngBounds bounds = builder.build();
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.30);
+
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+        mMap.animateCamera(cu);
+    }
+
+    private String getUrl(LatLng origin, LatLng destination, String directionMode){
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + destination.latitude + "," + destination.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
+        return url;
     }
 
 
@@ -232,6 +287,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onProviderDisabled(String provider) { }
+
 
 
 }
