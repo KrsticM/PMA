@@ -8,11 +8,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class DBContentProvider extends ContentProvider {
+    private static final String TAG = "DBContentProvider";
+
     private RouteSQLiteHelper database;
 
     private static final String AUTHORITY = "com.example.pma";
@@ -58,6 +61,14 @@ public class DBContentProvider extends ContentProvider {
                 break;
             case ONE_STOP:
                 // TODO: Napraviti query
+                break;
+            case ROUTE_STOPS:
+                int length = uri.getPathSegments().size();
+                String route_id = uri.getPathSegments().get(length-2); // Uzimamo pretposlednji path segment jer je to route id
+
+                queryBuilder.appendWhere(RouteSQLiteHelper.COLUMN_ROUTE_ID + "=" + route_id);
+                queryBuilder.setTables(RouteSQLiteHelper.TABLE_BUSSTOP);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

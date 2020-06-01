@@ -4,11 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +27,11 @@ import androidx.fragment.app.Fragment;
 import android.widget.RelativeLayout;
 
 import com.example.pma.R;
+import com.example.pma.database.DBContentProvider;
+import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.directionHelper.FetchURL;
+import com.example.pma.model.BusStop;
+import com.example.pma.model.Route;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -38,6 +44,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -74,17 +81,19 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     private LocationManager locationManager;
     private MySupportMapFragment mSupportMapFragment;
 
-    private MarkerOptions place1, place2;
+
     private List<MarkerOptions> markerOptionsList = new ArrayList<>();
     public Polyline currentPolyline;
 
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
+    private List<BusStop> busStops = new ArrayList<>();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "on create RouteDetailFragment ");
+        Log.e(TAG, "onCreate() RouteDetailFragment");
 
 
         if (getArguments().containsKey(ARG_ROUTE_ID)) {
@@ -103,8 +112,34 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 toolbarDetail.setTitle("Linija " + getArguments().getString("route_name"));
                 toolbarDetail.setSubtitle(getArguments().getString("route_description"));
             }
+
+            Uri uri = Uri.parse(DBContentProvider.CONTENT_URI_ROUTE + "/" + getArguments().getInt(ARG_ROUTE_ID) + "/stop");
+
+            String[] allColumns = {RouteSQLiteHelper.COLUMN_ID, RouteSQLiteHelper.COLUMN_NAME, RouteSQLiteHelper.COLUMN_LAT, RouteSQLiteHelper.COLUMN_LNG};
+
+            Cursor cursor = getActivity().getContentResolver().query(uri, allColumns, null, null, null);
+
+
+            cursor.moveToFirst();
+
+            while(!cursor.isAfterLast()) {
+                createBusStop(cursor);
+                cursor.moveToNext();
+            }
+
+            cursor.close();
         }
 
+    }
+
+    private void createBusStop(Cursor cursor) {
+        BusStop bs = new BusStop();
+        bs.setId(cursor.getInt(0));
+        bs.setName(cursor.getString(1));
+        bs.setLat(cursor.getDouble(2));
+        bs.setLng(cursor.getDouble(3));
+        Log.e(TAG, "DEBUG: \t\t\t DODATO STAJALISTE" + bs.getName());
+        busStops.add(bs);
     }
 
     @Override
@@ -112,13 +147,14 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.route_detail, container, false);
 
-        // TODO: uzeti sve stanice za markere, a za polyline prvu i poslednju
-        place1 = new MarkerOptions().position(new LatLng(45.237077, 19.826358)).title("NARODNOG FRONTA - OKRETNICA").icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
-        place2 = new MarkerOptions().position(new LatLng( 45.248134, 19.849265)).title("STRAŽILOVSKA - URBIS").icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
-        new FetchURL(getActivity()).execute(getUrl(place1.getPosition(), place2.getPosition(), "driving"), "driving");
+        // Postavljanje polyline-ova
+        for(int i=0; i<busStops.size()-1; i++) {
+            MarkerOptions startStation = new MarkerOptions().position(new LatLng(busStops.get(i).getLat(), busStops.get(i).getLng())).title(busStops.get(i).getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+            MarkerOptions stopStation = new MarkerOptions().position(new LatLng( busStops.get(i+1).getLat(), busStops.get(i+1).getLng())).title(busStops.get(i+1).getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+            new FetchURL(getActivity()).execute(getUrl(startStation.getPosition(), stopStation.getPosition(), "driving"), "driving");
+            markerOptionsList.add(startStation);
+        }
 
-        markerOptionsList.add(place1);
-        markerOptionsList.add(place2);
 
         Activity activity = this.getActivity();
         final NestedScrollView nestedScrollView = activity.findViewById(R.id.route_detail_container);
@@ -131,9 +167,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                     nestedScrollView.requestDisallowInterceptTouchEvent(true);
                 }
             });
-
-        //SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
-        //        .findFragmentById(R.id.map);
 
         mSupportMapFragment.getMapAsync(this);
         mapView = mSupportMapFragment.getView();
@@ -185,8 +218,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
 
-        // TODO: za sada zakucano za jednu stanicu
-
 //        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
 //        options.add(new LatLng(45.237077, 19.826358));
 //        options.add(new LatLng( 45.248134, 19.849265));
@@ -206,8 +237,13 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         // mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-        mMap.addMarker(place1);
-        mMap.addMarker(place2);
+//        mMap.addMarker(place1);
+//        mMap.addMarker(place2);
+
+        for(BusStop bs : busStops) {
+            MarkerOptions startStation = new MarkerOptions().position(new LatLng(bs.getLat(), bs.getLng())).title(bs.getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+            mMap.addMarker(startStation);
+        }
 
         showAllMarkers();
 

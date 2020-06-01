@@ -151,9 +151,9 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
 
     @Override
     public void onTaskDone(Object... values) {
-        if(fragment.currentPolyline != null) {
-            fragment.currentPolyline.remove();
-        }
+//        if(fragment.currentPolyline != null) {
+//            fragment.currentPolyline.remove();
+//        }
 
         fragment.currentPolyline = fragment.mMap.addPolyline((PolylineOptions) values[0]);
 
