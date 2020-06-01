@@ -41,6 +41,8 @@
         app:srcCompat="@android:drawable/btn_star_big_on"
         app:backgroundTint="@color/star"
         android:tint="@color/star_on"
+        app:maxImageSize="33dp"
+
         />
 
     <androidx.core.widget.NestedScrollView
