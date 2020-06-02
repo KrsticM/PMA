@@ -18,10 +18,18 @@ import com.example.pma.fragment.RouteDetailFragment;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.model.Route;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
+import com.google.android.gms.maps.model.JointType;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * An activity representing a single Item detail screen. This
@@ -154,8 +162,10 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
 //        if(fragment.currentPolyline != null) {
 //            fragment.currentPolyline.remove();
 //        }
-
         fragment.currentPolyline = fragment.mMap.addPolyline((PolylineOptions) values[0]);
+//        List<PatternItem> pattern = Arrays.<PatternItem>asList(
+//                new Dot(), new Gap(30));
+//        fragment.currentPolyline.setPattern(pattern);
 
     }
 

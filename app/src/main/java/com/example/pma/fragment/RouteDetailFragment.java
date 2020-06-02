@@ -25,13 +25,14 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.pma.R;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.directionHelper.FetchURL;
 import com.example.pma.model.BusStop;
-import com.example.pma.model.Route;
+import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,18 +40,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
+
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class RouteDetailFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, LocationListener {
+        GoogleMap.OnMyLocationClickListener, LocationListener, GoogleMap.OnMarkerClickListener {
 
     private static final String TAG = "RouteDetailFragment";
 
@@ -90,6 +91,9 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     private List<BusStop> busStops = new ArrayList<>();
 
+
+    GeoDataClient mGeoDataClient;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,15 +123,13 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
             Cursor cursor = getActivity().getContentResolver().query(uri, allColumns, null, null, null);
 
-
             cursor.moveToFirst();
-
             while(!cursor.isAfterLast()) {
                 createBusStop(cursor);
                 cursor.moveToNext();
             }
-
             cursor.close();
+
         }
 
     }
@@ -153,8 +155,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             MarkerOptions stopStation = new MarkerOptions().position(new LatLng( busStops.get(i+1).getLat(), busStops.get(i+1).getLng())).title(busStops.get(i+1).getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
             new FetchURL(getActivity()).execute(getUrl(startStation.getPosition(), stopStation.getPosition(), "driving"), "driving");
             markerOptionsList.add(startStation);
-        }
 
+        }
 
         Activity activity = this.getActivity();
         final NestedScrollView nestedScrollView = activity.findViewById(R.id.route_detail_container);
@@ -172,7 +174,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         mapView = mSupportMapFragment.getView();
 
         return rootView;
-
     }
 
 
@@ -182,16 +183,15 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
         Log.e(TAG, "onMapReady");
 
-        //UiSettings settings = mMap.getUiSettings();
-        //settings.setZoomControlsEnabled(true);
-
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
                         PackageManager.PERMISSION_GRANTED) {
+
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
             mMap.getUiSettings().setZoomControlsEnabled(true);
+            mMap.getUiSettings().setMapToolbarEnabled(false);
 
             // my location button set on right bottom position
             if (mapView != null &&
@@ -211,6 +211,54 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
            // mMap.moveCamera(CameraUpdateFactory.newLatLng());
+
+            // preuzimanje lokacije uredjaja
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            getAddressName(myLocation); // izvlaci adresu iz lokacije
+            Log.w(TAG, "DEBUG: \t\t\t\t " + myLocation.getLatitude() + ", " + myLocation.getLongitude());
+            LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+            MarkerOptions start = new MarkerOptions().position(latLng); // oznacavanje lokacije uredjaja
+
+            // pronalazak najblize stanice
+            float smallestDistance = -1;
+            List<Location> locations = new ArrayList<>();
+            for(int i = 0; i < busStops.size(); i++) { // prolazak kroz sve stanice i preuzimanje njihovih lokacija
+                Location temp = new Location(LocationManager.GPS_PROVIDER);
+                temp.setLongitude(busStops.get(i).getLng());
+                temp.setLatitude(busStops.get(i).getLat());
+                locations.add(temp);
+            }
+            Location closestLocation = null;
+            for(Location location: locations){ // prolazak kroz sve lokacije i trazenje najblize u odnosu na lokaciju uredjaja
+                Log.w(TAG, "lokacija: " + location.getLatitude() + ", " + location.getLongitude());
+                float distance  = myLocation.distanceTo(location);
+                if(smallestDistance == -1 || distance < smallestDistance) {
+                    closestLocation = location;
+                    smallestDistance = distance;
+                }
+            }
+
+            Log.w(TAG, "najbliza: " + closestLocation.getLatitude() + ", " + closestLocation.getLongitude());
+            // oznacavanje najblize stanice
+            MarkerOptions stop = new MarkerOptions().position(new LatLng( closestLocation.getLatitude(), closestLocation.getLongitude()));
+
+            // preuzimanje najblize stanice kako bi preuzeli naziv
+            BusStop closestBusStop = null;
+            for(BusStop bs: busStops) {
+                if(bs.getLat().equals(closestLocation.getLatitude()) && bs.getLng().equals(closestLocation.getLongitude())) {
+                    closestBusStop = bs;
+                    break;
+                }
+            }
+
+            // postavljanje naziva najblize stanice na ui
+            TextView busStationName = getActivity().findViewById(R.id.bus_station_name);
+            if(closestBusStop != null) {
+                busStationName.setText(closestBusStop.getName());
+            }
+
+            // crtanje polyline-a od lokacije uredjaja do najblize stanice
+            new FetchURL(getActivity()).execute(getUrl(start.getPosition(), stop.getPosition(), "walking"), "walking");
         } else {
             ActivityCompat.requestPermissions(getActivity(), new String[] {
                             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -218,34 +266,14 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
 
-//        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-//        options.add(new LatLng(45.237077, 19.826358));
-//        options.add(new LatLng( 45.248134, 19.849265));
-//        mMap.addPolyline(options);
-
-//        LatLng busStop = new LatLng(45.238842, 19.833227);
-//        mMap.addMarker(new MarkerOptions().position(busStop).title("NARODNOG FRONTA - BALZAKOVA")
-//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)));
-//        mMap.getUiSettings().setMapToolbarEnabled(false);
-
-        // mMap.setMyLocationEnabled(true);
-        // mMap.setOnMyLocationButtonClickListener(this);
-        // mMap.setOnMyLocationClickListener(this);
-
-        // Add a marker in Sydney, Australia, and move the camera.
-        // LatLng sydney = new LatLng(-34, 151);
-        // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        // mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-//        mMap.addMarker(place1);
-//        mMap.addMarker(place2);
-
         for(BusStop bs : busStops) {
             MarkerOptions startStation = new MarkerOptions().position(new LatLng(bs.getLat(), bs.getLng())).title(bs.getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
             mMap.addMarker(startStation);
         }
 
         showAllMarkers();
+        mMap.setOnMarkerClickListener(this);
+
 
     }
 
@@ -285,21 +313,14 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.d(TAG, "usao u onLocationChanged() ");
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
         mMap.animateCamera(cameraUpdate);
         locationManager.removeUpdates(this);
 
-        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-
-            String address = addresses.get(0).getAddressLine(0);
-            Log.e(TAG, "address " + address);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
+        // preuzimanje naziva adrese iz lokacije
+        getAddressName(location);
 
     }
 
@@ -325,6 +346,63 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     public void onProviderDisabled(String provider) { }
 
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        // Toast.makeText(getActivity(), "naziv: " + marker.getTitle(), Toast.LENGTH_SHORT).show();
 
+        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED) {
+
+            // preuzimanje lokacije uredjaja i oznacavanje lokacije
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            MarkerOptions start = new MarkerOptions().position(new LatLng( myLocation.getLatitude(), myLocation.getLongitude()));
+
+            // oznacavanje lokacije markera
+            MarkerOptions stop = new MarkerOptions().position(new LatLng( marker.getPosition().latitude, marker.getPosition().longitude));
+
+            // brisanje starog polyline-a
+            if(currentPolyline != null) {
+                currentPolyline.remove();
+            }
+
+            // crtanje polyline-a od lokacije uredjaja to markera
+            new FetchURL(getActivity()).execute(getUrl(start.getPosition(), stop.getPosition(), "walking"), "walking");
+
+            // preuzianje i postavljanje naziva oznacene stanice
+            TextView busStationName = getActivity().findViewById(R.id.bus_station_name);
+            busStationName.setText(marker.getTitle());
+
+            // preuzimanje naziva adrese iz lokacije
+            getAddressName(myLocation);
+        }
+        else {
+            ActivityCompat.requestPermissions(getActivity(), new String[] {
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION },
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+        return false;
+    }
+
+    private void getAddressName(Location myLocation) {
+        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(myLocation.getLatitude(), myLocation.getLongitude(), 1);
+
+            String address = addresses.get(0).getAddressLine(0); // vrati Ulica, Grad, Drzava
+            // preuzimanje samo ulice
+            String[] splited = address.split(",");
+            String addressName = splited[0];
+            // postavljanje naziva ulice (ui)
+            TextView yourLocation = getActivity().findViewById(R.id.your_location);
+            yourLocation.setText(addressName);
+            Log.d(TAG, "address " + address);
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 

@@ -5,12 +5,19 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.pma.R;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;;
 
@@ -70,11 +77,15 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
             // Adding all the points in the route to LineOptions
             lineOptions.addAll(points);
             if (directionMode.equalsIgnoreCase("walking")) {
-                lineOptions.width(10);
-                lineOptions.color(Color.MAGENTA);
+                lineOptions.width(30);
+                lineOptions.color(Color.rgb(192,192,192));
+                List<PatternItem> pattern = Arrays.<PatternItem>asList(
+                new Dot(), new Gap(15));
+                lineOptions.pattern(pattern);
+
             } else {
-                lineOptions.width(15);
-                lineOptions.color(Color.RED);
+                lineOptions.width(17);
+                lineOptions.color(Color.rgb(0,133,119));
             }
             Log.d("mylog", "onPostExecute lineoptions decoded");
         }
