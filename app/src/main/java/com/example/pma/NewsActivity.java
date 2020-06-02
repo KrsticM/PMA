@@ -8,15 +8,29 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.pma.model.News;
+import com.example.pma.model.Route;
+import com.example.pma.network.RetrofitClientInstance;
+import com.example.pma.service.GetDataService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class NewsActivity extends AppCompatActivity {
     ListView listView;
-    String mTitle[] = {"Promena linije 1", "Exit red voznje", "Zatvoren most Slobode"};
-    String mDescription[] = {"Linija 1 menja vreme polazaka od datuma 12.06.2020", "Za vreme trajanja exita Linija 9 menja raspored polazaka", "Zbog trke na Mišeluku Most Slobode biće zatvoren za gradski saobraćaj"};
+    List<News> news_list;
+    String mTitle[] = {};
+    String mDescription[] = {};
 
     @Override
 
@@ -24,9 +38,30 @@ public class NewsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news);
         listView = findViewById(R.id.news_list);
+
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<List<News>> call = service.getAllNews();
+        call.enqueue(new Callback<List<News>>() {
+            @Override
+            public void onResponse(Call<List<News>> call, Response<List<News>> response) {
+                Toast.makeText(NewsActivity.this, "Successful!!", Toast.LENGTH_SHORT).show();
+                news_list = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<List<News>> call, Throwable t) {
+                Toast.makeText(NewsActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+            }
+        });
         // now create an adapter class
-        MyAdapter adapter = new MyAdapter(this, mTitle, mDescription);
-        listView.setAdapter(adapter);
+        if (news_list != null) {
+            for (News n : news_list) {
+                mTitle[n.getId()] = n.getTitle();
+                mDescription[n.getId()] = n.getContent();
+            }
+            MyAdapter adapter = new MyAdapter(this, mTitle, mDescription);
+            listView.setAdapter(adapter);
+        }
     }
 
         class MyAdapter extends ArrayAdapter<String> {

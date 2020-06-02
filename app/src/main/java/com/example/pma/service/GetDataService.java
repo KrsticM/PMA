@@ -1,5 +1,6 @@
 package com.example.pma.service;
 
+import com.example.pma.model.News;
 import com.example.pma.model.Route;
 
 import java.util.List;
@@ -11,4 +12,7 @@ public interface GetDataService {
 
     @GET("/route")
     Call<List<Route>> getAllRoutes();
+
+    @GET("/news")
+    Call<List<News>> getAllNews();
 }
