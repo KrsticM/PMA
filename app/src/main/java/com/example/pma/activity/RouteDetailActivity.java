@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -159,14 +160,14 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
 
     @Override
     public void onTaskDone(Object... values) {
-//        if(fragment.currentPolyline != null) {
-//            fragment.currentPolyline.remove();
-//        }
-        fragment.currentPolyline = fragment.mMap.addPolyline((PolylineOptions) values[0]);
-//        List<PatternItem> pattern = Arrays.<PatternItem>asList(
-//                new Dot(), new Gap(30));
-//        fragment.currentPolyline.setPattern(pattern);
 
+        if(values[0] instanceof String) {
+            Log.d("DDD: ", values[0].toString());
+            fragment.setDurationDistance(values[0].toString());
+        }
+        else {
+            fragment.currentPolyline = fragment.mMap.addPolyline((PolylineOptions) values[0]);
+        }
     }
 
 }

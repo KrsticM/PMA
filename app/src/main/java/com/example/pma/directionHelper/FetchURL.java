@@ -40,6 +40,10 @@ public class FetchURL extends AsyncTask<String, Void, String> {
         PointsParser parserTask = new PointsParser(mContext, directionMode);
         // Invokes the thread for parsing the JSON data
         parserTask.execute(s);
+        if(directionMode.equals("walking")) {
+            DurationParser durationParser = new DurationParser(mContext, directionMode);
+            durationParser.execute(s);
+        }
     }
 
     private String downloadUrl(String strUrl) throws IOException {

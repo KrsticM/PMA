@@ -91,8 +91,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     private List<BusStop> busStops = new ArrayList<>();
 
-
-    GeoDataClient mGeoDataClient;
+    MarkerOptions stop;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -213,7 +212,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
            // mMap.moveCamera(CameraUpdateFactory.newLatLng());
 
             // preuzimanje lokacije uredjaja
-            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+            Log.e(TAG, "myLocation: " + myLocation);
             getAddressName(myLocation); // izvlaci adresu iz lokacije
             Log.w(TAG, "DEBUG: \t\t\t\t " + myLocation.getLatitude() + ", " + myLocation.getLongitude());
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
@@ -322,6 +322,12 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         // preuzimanje naziva adrese iz lokacije
         getAddressName(location);
 
+        // crtanje polyline-a od lokacije uredjaja to markera
+        if(stop != null) {
+            MarkerOptions start = new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()));
+            new FetchURL(getActivity()).execute(getUrl(start.getPosition(), stop.getPosition(), "walking"), "walking");
+        }
+
     }
 
     @Override
@@ -356,11 +362,11 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                         PackageManager.PERMISSION_GRANTED) {
 
             // preuzimanje lokacije uredjaja i oznacavanje lokacije
-            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
             MarkerOptions start = new MarkerOptions().position(new LatLng( myLocation.getLatitude(), myLocation.getLongitude()));
 
             // oznacavanje lokacije markera
-            MarkerOptions stop = new MarkerOptions().position(new LatLng( marker.getPosition().latitude, marker.getPosition().longitude));
+            stop = new MarkerOptions().position(new LatLng( marker.getPosition().latitude, marker.getPosition().longitude));
 
             // brisanje starog polyline-a
             if(currentPolyline != null) {
@@ -403,6 +409,12 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         catch(IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setDurationDistance(String toString) {
+        TextView duration_distance = getActivity().findViewById(R.id.duration_distance);
+        String[] list = toString.split(";");
+        duration_distance.setText("Šetaj " + list[1] + " (" + list[0] + ")");
     }
 }
 
