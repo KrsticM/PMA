@@ -2,6 +2,7 @@ package com.example.pma;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,11 +28,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class NewsActivity extends AppCompatActivity {
+
     ListView listView;
     List<News> news_list;
-    String mTitle[] = {};
-    String mDescription[] = {};
-
+    List<String> title = new ArrayList<>();
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +44,8 @@ public class NewsActivity extends AppCompatActivity {
         call.enqueue(new Callback<List<News>>() {
             @Override
             public void onResponse(Call<List<News>> call, Response<List<News>> response) {
-                Toast.makeText(NewsActivity.this, "Successful!!", Toast.LENGTH_SHORT).show();
                 news_list = response.body();
+                reloadData();
             }
 
             @Override
@@ -53,45 +53,48 @@ public class NewsActivity extends AppCompatActivity {
                 Toast.makeText(NewsActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
         });
-        // now create an adapter class
+    }
+
+    void reloadData() {
         if (news_list != null) {
-            for (News n : news_list) {
-                mTitle[n.getId()] = n.getTitle();
-                mDescription[n.getId()] = n.getContent();
+
+            for(News n : news_list) {
+                title.add(n.getTitle());
             }
-            MyAdapter adapter = new MyAdapter(this, mTitle, mDescription);
+
+            MyAdapter adapter = new MyAdapter(this, news_list);
             listView.setAdapter(adapter);
         }
     }
 
-        class MyAdapter extends ArrayAdapter<String> {
+    class MyAdapter extends ArrayAdapter<String> {
 
-            Context context;
-            String rTitle[];
-            String rDescription[];
+        Context context;
+        List<News> news_list;
 
-            MyAdapter(Context c, String title[], String description[]) {
-                super(c, R.layout.news_row, R.id.title, title);
-                this.context = c;
-                this.rTitle = title;
-                this.rDescription = description;
-            }
 
-            @NonNull
-            @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View row = layoutInflater.inflate(R.layout.news_row, parent, false);
+        MyAdapter(Context c, List<News> news) {
 
-                TextView myTitle = row.findViewById(R.id.title);
-                TextView myDescription = row.findViewById(R.id.description);
-
-                // now set our resources on views
-                myTitle.setText(rTitle[position]);
-                myDescription.setText(rDescription[position]);
-                return row;
-            }
+            super(c, R.layout.news_row, title.toArray(new String[0]));
+            this.context = c;
+            this.news_list = news;
         }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            LayoutInflater layoutInflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View row = layoutInflater.inflate(R.layout.news_row, parent, false);
+
+            TextView myTitle = row.findViewById(R.id.title);
+            TextView myDescription = row.findViewById(R.id.description);
+
+            // now set our resources on views
+            myTitle.setText(this.news_list.get(position).getTitle());
+            myDescription.setText(this.news_list.get(position).getContent());
+            return row;
+        }
+    }
 }
 
 
