@@ -1,4 +1,4 @@
-package com.example.pma;
+package com.example.pma.activity;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,6 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.pma.R;
 
 public class NewsActivity extends AppCompatActivity {
     ListView listView;

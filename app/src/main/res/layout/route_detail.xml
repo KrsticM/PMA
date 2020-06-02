@@ -7,7 +7,7 @@
 
             <fragment
                 android:id="@+id/map"
-                android:name="com.example.pma.MySupportMapFragment"
+                android:name="com.example.pma.fragment.MySupportMapFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 />

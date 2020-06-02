@@ -1,9 +1,10 @@
-package com.example.pma;
+package com.example.pma.activity;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -12,12 +13,24 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.pma.R;
+import com.example.pma.directionHelper.TaskLoadedCallback;
+import com.example.pma.fragment.RouteDetailFragment;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.model.Route;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
+import com.google.android.gms.maps.model.JointType;
+import com.google.android.gms.maps.model.PatternItem;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * An activity representing a single Item detail screen. This
@@ -25,7 +38,7 @@ import com.google.android.material.snackbar.Snackbar;
  * item details are presented side-by-side with a list of items
  * in a {@link MainActivity}.
  */
-public class RouteDetailActivity extends AppCompatActivity {
+public class RouteDetailActivity extends AppCompatActivity implements TaskLoadedCallback {
 
 
     private static final String TAG = "RouteDetailActivity";
@@ -35,6 +48,8 @@ public class RouteDetailActivity extends AppCompatActivity {
     private Route route;
 
     private Uri uri;
+
+    private RouteDetailFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +105,7 @@ public class RouteDetailActivity extends AppCompatActivity {
             arguments.putString("route_name", route.getName());
             arguments.putString("route_description", route.getDescription());
 
-            RouteDetailFragment fragment = new RouteDetailFragment();
+            fragment = new RouteDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction().add(R.id.route_detail_container, fragment).commit();
         }
@@ -141,6 +156,18 @@ public class RouteDetailActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+
+        if(values[0] instanceof String) {
+            Log.d("DDD: ", values[0].toString());
+            fragment.setDurationDistance(values[0].toString());
+        }
+        else {
+            fragment.currentPolyline = fragment.mMap.addPolyline((PolylineOptions) values[0]);
+        }
     }
 
 }

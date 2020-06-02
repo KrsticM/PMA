@@ -1,4 +1,4 @@
-package com.example.pma;
+package com.example.pma.activity;
 
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.example.pma.R;
 import com.example.pma.adapter.SimpleRouteRecyclerViewAdapter;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            startActivity(new Intent(this,SettingsActivity.class));
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
@@ -205,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intentSettings);
                 break;
             case R.id.warnings:
-                Intent intentNews = new Intent (MainActivity.this,NewsActivity.class);
+                Intent intentNews = new Intent (MainActivity.this, NewsActivity.class);
                 startActivity(intentNews);
                 break;
             case R.id.favourite_routes:

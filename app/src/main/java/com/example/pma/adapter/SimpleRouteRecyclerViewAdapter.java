@@ -8,18 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.pma.MainActivity;
 import com.example.pma.R;
-import com.example.pma.RouteDetailActivity;
-import com.example.pma.RouteDetailFragment;
+import com.example.pma.activity.RouteDetailActivity;
+import com.example.pma.fragment.RouteDetailFragment;
 import com.example.pma.model.Route;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
