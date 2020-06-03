@@ -5,7 +5,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.example.pma.R;
@@ -26,6 +28,12 @@ public class FavouriteRoutesActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-       // recyclerView.setAdapter(new SimpleRouteRecyclerViewAdapter(this, Content.routes, mTwoPane));
+        // Get all routes and only show favorite routes
+        SharedPreferences pref = getSharedPreferences("Favorites", 0); // 0 - for private mode
+        Log.e("FAVORITES: ", pref.getAll().toString());
+
+        // Load all routes from database and tako only ones from pref.getAll map
+
+        //recyclerView.setAdapter(new SimpleRouteRecyclerViewAdapter(this, // HERE SEND NEW LIST OF ROUTES//, mTwoPane));
     }
 }
