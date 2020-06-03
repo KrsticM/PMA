@@ -28,13 +28,14 @@ public class DBContentProvider extends ContentProvider {
     private static final int ONE_ROUTE = 2;
     private static final int ROUTE_STOPS = 3;
     private static final int ONE_STOP = 4;
+    private static final int ROUTE_TIMETABLE = 5;
 
     static {
         sURIMatcher.addURI(AUTHORITY, ROUTE_PATH, ALL_ROUTES);
         sURIMatcher.addURI(AUTHORITY, ROUTE_PATH + "/#", ONE_ROUTE);
         sURIMatcher.addURI(AUTHORITY, ROUTE_PATH + "/#/stop", ROUTE_STOPS);
         sURIMatcher.addURI(AUTHORITY, ROUTE_PATH + "/#/stop/#", ONE_STOP);
-
+        sURIMatcher.addURI(AUTHORITY, ROUTE_PATH + "/#/timetable", ROUTE_TIMETABLE);
     }
 
     @Override
@@ -65,9 +66,17 @@ public class DBContentProvider extends ContentProvider {
             case ROUTE_STOPS:
                 int length = uri.getPathSegments().size();
                 String route_id = uri.getPathSegments().get(length-2); // Uzimamo pretposlednji path segment jer je to route id
+                Log.d(TAG, "length: " + length + ", route_id " + route_id);
 
                 queryBuilder.appendWhere(RouteSQLiteHelper.COLUMN_ROUTE_ID + "=" + route_id);
                 queryBuilder.setTables(RouteSQLiteHelper.TABLE_BUSSTOP);
+                break;
+            case ROUTE_TIMETABLE:
+                int size = uri.getPathSegments().size();
+                String id = uri.getPathSegments().get(size-2); // Uzimamo pretposlednji path segment jer je to route id
+                queryBuilder.appendWhere(RouteSQLiteHelper.COLUMN_ROUTE_ID + "=" + id);
+                queryBuilder.setTables(RouteSQLiteHelper.TABLE_TIMETABLE);
+                Log.d(TAG, "size: " + size + ", id " + id);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -103,6 +112,10 @@ public class DBContentProvider extends ContentProvider {
             case ROUTE_STOPS:
                 id = sqlDB.insert(RouteSQLiteHelper.TABLE_BUSSTOP, null, values);
                 retVal = Uri.parse(ROUTE_PATH + "/stop/" + id);
+                break;
+            case ROUTE_TIMETABLE:
+                id = sqlDB.insert(RouteSQLiteHelper.TABLE_TIMETABLE, null, values);
+                retVal = Uri.parse(ROUTE_PATH + "/timetable/" + id);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);

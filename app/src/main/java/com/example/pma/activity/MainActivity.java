@@ -13,6 +13,7 @@ import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.model.BusStop;
 import com.example.pma.model.Route;
+import com.example.pma.model.Timetable;
 import com.example.pma.network.RetrofitClientInstance;
 import com.example.pma.service.GetDataService;
 import com.google.android.material.navigation.NavigationView;
@@ -139,11 +140,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Uri uri = Uri.parse("content://" + AUTHORITY + "/" + ROUTE_PATH + "/" + r.getId().toString() + "/stop");
                     MainActivity.this.getContentResolver().insert(uri, busStopEntry);
                 }
+                for(Timetable tt: r.getTimetables()) {
+                    ContentValues timetableEntry = new ContentValues();
+                    timetableEntry.put(RouteSQLiteHelper.COLUMN_ID, tt.getId());
+                    timetableEntry.put(RouteSQLiteHelper.COLUMN_TYPE, tt.getType());
+                    timetableEntry.put(RouteSQLiteHelper.COLUMN_CONTENT, tt.getContent());
+                    timetableEntry.put(RouteSQLiteHelper.COLUMN_ROUTE_ID, r.getId());
+
+                    Uri uri = Uri.parse("content://" + AUTHORITY + "/" + ROUTE_PATH + "/" + r.getId().toString() + "/timetable");
+                    MainActivity.this.getContentResolver().insert(uri, timetableEntry);
+                }
             }
         }
 
         db.close();
-
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
