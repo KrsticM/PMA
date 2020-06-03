@@ -124,6 +124,7 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
                 // Toast.makeText(RouteDetailActivity.this, "Clicked", Toast.LENGTH_LONG).show();
                 Intent activity2Intent = new Intent(RouteDetailActivity.this, TimeTableActivity.class);
                 // Toast.makeText(RouteDetailActivity.this, route.content, Toast.LENGTH_LONG).show();
+                Log.d(TAG, "DEBUG route_id " + route.getId());
                 activity2Intent.putExtra("route_id", route.getId());
                 activity2Intent.putExtra("route_name", route.getName());
                 activity2Intent.putExtra("route_description", route.getDescription());

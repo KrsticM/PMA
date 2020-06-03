@@ -86,7 +86,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     private List<MarkerOptions> markerOptionsList = new ArrayList<>();
     public Polyline currentPolyline;
 
-
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private List<BusStop> busStops = new ArrayList<>();
@@ -117,7 +116,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             }
 
             Uri uri = Uri.parse(DBContentProvider.CONTENT_URI_ROUTE + "/" + getArguments().getInt(ARG_ROUTE_ID) + "/stop");
-
+            Log.d(TAG, "DEBUG AAAA uri " + uri);
+            Log.d(TAG, "DEBUG AAA ARG_ROUTE_ID: " + getArguments().getInt(ARG_ROUTE_ID));
             String[] allColumns = {RouteSQLiteHelper.COLUMN_ID, RouteSQLiteHelper.COLUMN_NAME, RouteSQLiteHelper.COLUMN_LAT, RouteSQLiteHelper.COLUMN_LNG};
 
             Cursor cursor = getActivity().getContentResolver().query(uri, allColumns, null, null, null);
@@ -212,7 +212,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
            // mMap.moveCamera(CameraUpdateFactory.newLatLng());
 
             // preuzimanje lokacije uredjaja
-            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
             Log.e(TAG, "myLocation: " + myLocation);
             getAddressName(myLocation); // izvlaci adresu iz lokacije
             Log.w(TAG, "DEBUG: \t\t\t\t " + myLocation.getLatitude() + ", " + myLocation.getLongitude());
@@ -362,7 +362,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                         PackageManager.PERMISSION_GRANTED) {
 
             // preuzimanje lokacije uredjaja i oznacavanje lokacije
-            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
             MarkerOptions start = new MarkerOptions().position(new LatLng( myLocation.getLatitude(), myLocation.getLongitude()));
 
             // oznacavanje lokacije markera

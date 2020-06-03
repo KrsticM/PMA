@@ -18,7 +18,12 @@ public class RouteSQLiteHelper  extends SQLiteOpenHelper {
     public static final String TABLE_BUSSTOP = "bus_stop";
     public static final String COLUMN_LAT = "lat";
     public static final String COLUMN_LNG = "lng";
-    public static final String COLUMN_ROUTE_ID = "route_id";
+    public static final String COLUMN_ROUTE_ID = "route_id"; // i za bus stop i za timetable
+
+    public static final String TABLE_TIMETABLE = "timetable";
+    public static final String COLUMN_TYPE = "type";
+    public static final String COLUMN_CONTENT = "content";
+
 
     public RouteSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -41,10 +46,20 @@ public class RouteSQLiteHelper  extends SQLiteOpenHelper {
             + COLUMN_ROUTE_ID + " integer "
             + ")";
 
+    private static final String DB_CREATE_TABLE_TIMETABLE = "create table "
+            + TABLE_TIMETABLE + "("
+            + COLUMN_ID  + " integer primary key, "
+            + COLUMN_TYPE + " text, "
+            + COLUMN_CONTENT + " text, "
+            + COLUMN_ROUTE_ID + " integer "
+            + ")";
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DB_CREATE_TABLE_ROUTE);
         db.execSQL(DB_CREATE_TABLE_BUS_STOP);
+        db.execSQL(DB_CREATE_TABLE_TIMETABLE);
+
     }
 
     // kada zelimo da izmeninmo tabele, moramo pozvati drop table za sve tabele koje imamo
@@ -52,6 +67,7 @@ public class RouteSQLiteHelper  extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROUTE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUSSTOP);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TIMETABLE);
         onCreate(db);
 
     }
