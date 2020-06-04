@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         progressDoalog = new ProgressDialog(MainActivity.this);
-        progressDoalog.setMessage("Loading....");
+        progressDoalog.setMessage("Učitavanje....");
         progressDoalog.show();
 
         /*Create handle for the RetrofitInstance interface*/
@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void generateDataList(List<Route> routeList) {
         // Save data to the database
         Log.e(TAG, "generateDataList");
-
         RouteSQLiteHelper dbHelper = new RouteSQLiteHelper(MainActivity.this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         dbHelper.onUpgrade(db,1,2);
@@ -128,23 +127,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 for(BusStop bs : r.getBusStops()) {
                     Log.e(TAG, bs.getName());
-
                     ContentValues busStopEntry = new ContentValues();
                     busStopEntry.put(RouteSQLiteHelper.COLUMN_ID, bs.getId());
                     busStopEntry.put(RouteSQLiteHelper.COLUMN_NAME, bs.getName());
                     busStopEntry.put(RouteSQLiteHelper.COLUMN_LAT, bs.getLat());
                     busStopEntry.put(RouteSQLiteHelper.COLUMN_LNG, bs.getLng());
                     busStopEntry.put(RouteSQLiteHelper.COLUMN_ROUTE_ID, r.getId());
-
                     Uri uri = Uri.parse("content://" + AUTHORITY + "/" + ROUTE_PATH + "/" + r.getId().toString() + "/stop");
                     MainActivity.this.getContentResolver().insert(uri, busStopEntry);
                 }
             }
         }
-
         db.close();
-
-
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView, routeList);

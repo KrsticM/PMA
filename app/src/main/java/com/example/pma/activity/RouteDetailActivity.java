@@ -1,7 +1,10 @@
 package com.example.pma.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,8 +54,10 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
 
     private RouteDetailFragment fragment;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.e("ROTATE: ", "onCreate RouteDetailActivity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_detail);
 
@@ -62,15 +67,6 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
 
         }
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         // Show the Up button in the action bar.
         // back button
@@ -98,6 +94,7 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
         // http://developer.android.com/guide/components/fragments.html
         //
         if (savedInstanceState == null) {
+            Log.e("ROTATE: ", "savedInstanceStateIsNull");
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
@@ -108,6 +105,9 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
             fragment = new RouteDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction().add(R.id.route_detail_container, fragment).commit();
+        } else {
+            fragment = (RouteDetailFragment)getSupportFragmentManager().findFragmentById(R.id.route_detail_container);
+            Log.e(TAG, "PRONASLI FRAGMENT");
         }
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
@@ -130,6 +130,39 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
                 startActivity(activity2Intent);
             }
         });
+
+        final FloatingActionButton fab = findViewById(R.id.fab);
+        SharedPreferences pref = getSharedPreferences("Favorites", 0); // 0 - for private mode
+        if(pref.contains(route.getId().toString())) {
+            Log.e("zvezdica", "Ruta je omiljena");
+            //holder.mImageButton.setImageAlpha(1);
+            fab.setImageTintList(ColorStateList.valueOf(Color.parseColor("#ADFFE700")));
+
+        } else {
+            Log.e("zvezdica", "Ruta nije omiljena");
+            //holder.mImageButton.setImageAlpha(0);
+            fab.setImageTintList(ColorStateList.valueOf(Color.parseColor("#A9A9A9")));
+        }
+
+        fab.setOnClickListener(new View.OnClickListener()   {
+            SharedPreferences pref = getSharedPreferences("Favorites", 0); // 0 - for private mode
+            SharedPreferences.Editor editor = pref.edit();
+            public void onClick(View v)  {
+                if(pref.contains(route.getId().toString())) { // It's favorite, do unfav
+                    Log.e("zvezdica", "kliknuto unfave ");
+                    editor.remove(route.getId().toString()); // Remove from fav
+                    //holder.mImageButton.setImageResource(R.drawable.round_star_button);
+                    fab.setImageTintList(ColorStateList.valueOf(Color.parseColor("#A9A9A9")));
+                } else {
+                    Log.e("Kliknuto", "fav");
+                    editor.putString(route.getId().toString(), route.getName().toString()); // Add to fav
+                    //holder.mImageButton.setImageResource(R.drawable.silver_line);
+                    fab.setImageTintList(ColorStateList.valueOf(Color.parseColor("#ADFFE700")));
+                }
+                editor.commit();
+            }
+        });
+
 
     }
 

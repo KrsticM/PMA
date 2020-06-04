@@ -40,7 +40,7 @@
         app:layout_anchorGravity="top|end"
         app:srcCompat="@android:drawable/btn_star_big_on"
         app:backgroundTint="@color/star"
-        android:tint="@color/star_on"
+        android:tint="@color/star_off"
         app:maxImageSize="33dp"
 
         />
