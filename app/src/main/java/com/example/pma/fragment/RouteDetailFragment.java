@@ -120,7 +120,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             }
 
             Uri uri = Uri.parse(DBContentProvider.CONTENT_URI_ROUTE + "/" + getArguments().getInt(ARG_ROUTE_ID) + "/stop");
-
+            Log.d(TAG, "DEBUG AAAA uri " + uri);
+            Log.d(TAG, "DEBUG AAA ARG_ROUTE_ID: " + getArguments().getInt(ARG_ROUTE_ID));
             String[] allColumns = {RouteSQLiteHelper.COLUMN_ID, RouteSQLiteHelper.COLUMN_NAME, RouteSQLiteHelper.COLUMN_LAT, RouteSQLiteHelper.COLUMN_LNG};
 
             Cursor cursor = getActivity().getContentResolver().query(uri, allColumns, null, null, null);
@@ -374,7 +375,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
             // preuzimanje lokacije uredjaja i oznacavanje lokacije
             Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
-            MarkerOptions start = new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
+            MarkerOptions start = new MarkerOptions().position(new LatLng( myLocation.getLatitude(), myLocation.getLongitude()));
+
 
             // oznacavanje lokacije markera
             stop = new MarkerOptions().position(new LatLng(marker.getPosition().latitude, marker.getPosition().longitude));

@@ -22,6 +22,9 @@ public class Route {
     @SerializedName("busStops")
     private List<BusStop> busStops = new ArrayList<>();
 
+    @SerializedName("timetables")
+    private List<Timetable> timetables = new ArrayList<>();
+
     public Route() {
 
     }
@@ -72,6 +75,14 @@ public class Route {
 
     public void setBusStops(List<BusStop> busStops) {
         this.busStops = busStops;
+    }
+
+    public List<Timetable> getTimetables() {
+        return timetables;
+    }
+
+    public void setTimetables(List<Timetable> timetables) {
+        this.timetables = timetables;
     }
 
     @Override
