@@ -28,10 +28,12 @@
             app:title="@string/time_distance_title"
             app:useSimpleSummaryProvider="true" />
 
-        <EditTextPreference
+        <ListPreference
             app:dependency="alarm"
             app:key="distance_meters"
-            app:title="@string/distance_title"
+            app:entries="@array/distance_entries"
+            app:entryValues="@array/distance_values"
+            app:title="Udaljenost autobusa u metrima"
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
