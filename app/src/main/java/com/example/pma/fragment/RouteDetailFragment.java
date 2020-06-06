@@ -292,7 +292,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             mark.setTag(bs.getId());
         }
 
-        //showAllMarkers();
+        showAllMarkers();
         mMap.setOnMarkerClickListener(this);
 
     }
@@ -308,7 +308,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
-        int padding = (int) (width * 0.30);
+        int padding = (int) (width * 0.20);
 
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
         mMap.animateCamera(cu);
