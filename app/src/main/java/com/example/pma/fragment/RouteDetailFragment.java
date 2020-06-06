@@ -15,6 +15,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
@@ -30,7 +31,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +40,9 @@ import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.directionHelper.FetchURL;
 import com.example.pma.model.BusStop;
+import com.example.pma.model.Position;
+import com.example.pma.network.RetrofitClientInstance;
+import com.example.pma.service.GetDataService;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -56,6 +59,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RouteDetailFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener, LocationListener, GoogleMap.OnMarkerClickListener {
@@ -101,6 +108,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(TAG, "onCreate() RouteDetailFragment");
+        timerHandler.postDelayed(timerRunnable, 0); // TIMER
 
 
         if (getArguments().containsKey(ARG_ROUTE_ID)) {
@@ -120,8 +128,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             }
 
             Uri uri = Uri.parse(DBContentProvider.CONTENT_URI_ROUTE + "/" + getArguments().getInt(ARG_ROUTE_ID) + "/stop");
-            Log.d(TAG, "DEBUG AAAA uri " + uri);
-            Log.d(TAG, "DEBUG AAA ARG_ROUTE_ID: " + getArguments().getInt(ARG_ROUTE_ID));
+
             String[] allColumns = {RouteSQLiteHelper.COLUMN_ID, RouteSQLiteHelper.COLUMN_NAME, RouteSQLiteHelper.COLUMN_LAT, RouteSQLiteHelper.COLUMN_LNG};
 
             Cursor cursor = getActivity().getContentResolver().query(uri, allColumns, null, null, null);
@@ -154,8 +161,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
         // Postavljanje polyline-ova
         for (int i = 0; i < busStops.size() - 1; i++) {
-            MarkerOptions startStation = new MarkerOptions().position(new LatLng(busStops.get(i).getLat(), busStops.get(i).getLng())).title(busStops.get(i).getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
-            MarkerOptions stopStation = new MarkerOptions().position(new LatLng(busStops.get(i + 1).getLat(), busStops.get(i + 1).getLng())).title(busStops.get(i + 1).getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+            MarkerOptions startStation = new MarkerOptions().position(new LatLng(busStops.get(i).getLat(), busStops.get(i).getLng())).title(busStops.get(i).getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop));
+            MarkerOptions stopStation = new MarkerOptions().position(new LatLng(busStops.get(i + 1).getLat(), busStops.get(i + 1).getLng())).title(busStops.get(i + 1).getName()).icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop));
             new FetchURL(getActivity()).execute(getUrl(startStation.getPosition(), stopStation.getPosition(), "driving"), "driving");
             markerOptionsList.add(startStation);
 
@@ -179,6 +186,11 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         return rootView;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        timerHandler.removeCallbacks(timerRunnable);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -273,7 +285,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
         for (BusStop bs : busStops) {
             MarkerOptions startStation = new MarkerOptions().position(new LatLng(bs.getLat(), bs.getLng())).title(bs.getName())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus)).infoWindowAnchor(0.5f, 0.5f);
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus_stop)).infoWindowAnchor(0.5f, 0.5f);
 
 
             Marker mark = mMap.addMarker(startStation);
@@ -375,8 +387,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
             // preuzimanje lokacije uredjaja i oznacavanje lokacije
             Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
-            MarkerOptions start = new MarkerOptions().position(new LatLng( myLocation.getLatitude(), myLocation.getLongitude()));
-
+            MarkerOptions start = new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
 
             // oznacavanje lokacije markera
             stop = new MarkerOptions().position(new LatLng(marker.getPosition().latitude, marker.getPosition().longitude));
@@ -407,7 +418,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private void getAddressName(Location myLocation) {
-        if(getActivity() != null){
+        if (getActivity() != null) {
             Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
             try {
                 List<Address> addresses = geocoder.getFromLocation(myLocation.getLatitude(), myLocation.getLongitude(), 1);
@@ -428,15 +439,13 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     }
 
     public void setDurationDistance(String toString) {
-        if(getActivity() != null) {
+        if (getActivity() != null) {
             TextView duration_distance = getActivity().findViewById(R.id.duration_distance);
             String[] list = toString.split(";");
             duration_distance.setText("Šetaj " + list[1] + " (" + list[0] + ")");
         }
 
     }
-
-
 
 
     /**
@@ -480,7 +489,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 imageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#A9A9A9")));
             }
 
-
             String title = marker.getTitle();
             TextView titleUi = view.findViewById(R.id.title);
             if (title != null) {
@@ -519,6 +527,54 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
         }
     }
+
+    // TIMER
+    long startTime = 0;
+
+    //runs without a timer by reposting this handler at the end of the runnable
+    Handler timerHandler = new Handler();
+    GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+    Marker busPositionMarker;
+    Runnable timerRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            long millis = System.currentTimeMillis() - startTime;
+            int seconds = (int) (millis / 1000);
+            int minutes = seconds / 60;
+            seconds = seconds % 60;
+            Log.e("TIMER", "time");
+            Call<Position> call = service.getPosition4();
+
+            call.enqueue(new Callback<Position>() {
+                @Override
+                public void onResponse(Call<Position> call, Response<Position> response) {
+                    MarkerOptions busPositionMarkerOptions = new MarkerOptions().position(new LatLng(response.body().getX(), response.body().getY()))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+
+                    if (busPositionMarker == null) {
+                        busPositionMarker = mMap.addMarker(busPositionMarkerOptions);
+                        Log.e("MARKER", "Dodat");
+                    } else {
+                        busPositionMarker.remove();
+                        busPositionMarker = mMap.addMarker(busPositionMarkerOptions);
+
+                        Log.e("MARKER", "promenjena pozicija");
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<Position> call, Throwable t) {
+                    Log.e("ERROR:", "Something went wrong...Please try later!");
+                    // Toast.makeText(getActivity(), "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
+            timerHandler.postDelayed(this, 900);
+        }
+    };
 }
 
 
