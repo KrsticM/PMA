@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class RouteSQLiteHelper  extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "route.db";
-    private static final int DATABASE_VERSION = 1;
+    private static int DATABASE_VERSION = 5;
 
     public static final String TABLE_ROUTE = "route";
     public static final String COLUMN_ID = "_id";
@@ -70,5 +70,13 @@ public class RouteSQLiteHelper  extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TIMETABLE);
         onCreate(db);
 
+    }
+
+    public static int getDatabaseVersion() {
+        return DATABASE_VERSION;
+    }
+
+    public static void setDatabaseVersion(int databaseVersion) {
+        DATABASE_VERSION = databaseVersion;
     }
 }
