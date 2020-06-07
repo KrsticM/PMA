@@ -1,12 +1,18 @@
 package com.example.pma.activity;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.example.pma.R;
@@ -20,6 +26,7 @@ import com.example.pma.model.Route;
 import com.example.pma.model.Timetable;
 import com.example.pma.network.RetrofitClientInstance;
 import com.example.pma.service.GetDataService;
+import com.example.pma.service.NotificationService;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
@@ -40,6 +47,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -175,6 +183,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
        }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences.getBoolean("alarm",false)){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel serviceChannel = new NotificationChannel(
+                        "test",
+                        "Example Service Channel",
+                        NotificationManager.IMPORTANCE_DEFAULT
+                );
+
+                NotificationManager manager = getSystemService(NotificationManager.class);
+                manager.createNotificationChannel(serviceChannel);
+            }
+            scheduleJob();
+        }
+    }
 
     /*Method to generate List of data using RecyclerView with custom adapter*/
     private void generateDataList(List<Route> routeList, Integer newVersion) {
@@ -299,5 +322,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
         return false;
+    }
+
+    public void scheduleJob() {
+        ComponentName componentName = new ComponentName (getApplicationContext(), NotificationService.class);
+        JobInfo jobInfo = new JobInfo.Builder(1, componentName)
+                .setMinimumLatency(1000*10)
+                .build();
+
+        JobScheduler jobScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        jobScheduler.schedule(jobInfo);
     }
 }
