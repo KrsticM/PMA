@@ -1,5 +1,6 @@
 package com.example.pma.service;
 
+import com.example.pma.model.DatabaseVersion;
 import com.example.pma.model.News;
 import com.example.pma.model.Position;
 import com.example.pma.model.Route;
@@ -22,4 +23,7 @@ public interface GetDataService {
 
     @GET("/bus/position/7")
     Call<Position> getPosition7();
+
+    @GET("/version")
+    Call<DatabaseVersion> getVersion();
 }

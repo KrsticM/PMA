@@ -4,23 +4,30 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class DurationParser extends AsyncTask<String, Integer, String> {
     TaskLoadedCallback taskCallback;
+    TaskLoadedCallbackBus taskLoadedCallbackBus;
     String directionMode = "driving";
+    Boolean mode;
+    String stationName;
 
-    public DurationParser(Context mContext, String directionMode) {
+    public DurationParser(Context mContext, String directionMode, Boolean mode) {
         this.taskCallback = (TaskLoadedCallback) mContext;
+        this.taskLoadedCallbackBus = (TaskLoadedCallbackBus)mContext;
         this.directionMode = directionMode;
+        this.mode = mode;
+    }
+
+    public DurationParser(Context mContext, String directionMode, Boolean mode, String stationName) {
+        this.taskCallback = (TaskLoadedCallback) mContext;
+        this.taskLoadedCallbackBus = (TaskLoadedCallbackBus)mContext;
+        this.directionMode = directionMode;
+        this.mode = mode;
+        this.stationName = stationName;
     }
 
     // Parsing the data in non-ui thread
@@ -58,6 +65,13 @@ public class DurationParser extends AsyncTask<String, Integer, String> {
     // Executes in UI thread, after the parsing process
     @Override
     protected void onPostExecute(String result) {
-       taskCallback.onTaskDone(result);
+        Log.e("DEBUG", "onPostExecute");
+        if(mode) {
+            taskCallback.onTaskDone(result);
+        } else {
+            taskLoadedCallbackBus.onTaskDoneBus(result, stationName);
+        }
+
+
     }
 }

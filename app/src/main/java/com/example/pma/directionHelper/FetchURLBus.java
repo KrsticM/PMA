@@ -11,12 +11,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class FetchURL extends AsyncTask<String, Void, String> {
+public class FetchURLBus extends AsyncTask<String, Void, String> {
     Context mContext;
     String directionMode = "driving";
+    String stationName;
 
-    public FetchURL(Context mContext) {
+    public FetchURLBus(Context mContext, String stationName) {
         this.mContext = mContext;
+        this.stationName = stationName;
     }
 
     @Override
@@ -37,13 +39,8 @@ public class FetchURL extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        PointsParser parserTask = new PointsParser(mContext, directionMode);
-        // Invokes the thread for parsing the JSON data
-        parserTask.execute(s);
-        if(directionMode.equals("walking")) {
-            DurationParser durationParser = new DurationParser(mContext, directionMode, true);
-            durationParser.execute(s);
-        }
+        DurationParser durationParser = new DurationParser(mContext, directionMode, false, stationName);
+        durationParser.execute(s);
     }
 
     private String downloadUrl(String strUrl) throws IOException {

@@ -39,6 +39,7 @@ import com.example.pma.R;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.directionHelper.FetchURL;
+import com.example.pma.directionHelper.FetchURLBus;
 import com.example.pma.model.BusStop;
 import com.example.pma.model.Position;
 import com.example.pma.network.RetrofitClientInstance;
@@ -59,6 +60,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -96,6 +98,8 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     private MySupportMapFragment mSupportMapFragment;
 
     private List<MarkerOptions> markerOptionsList = new ArrayList<>();
+    private List<Marker> markers = new ArrayList<>();
+
     public Polyline currentPolyline;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -229,7 +233,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             // mMap.moveCamera(CameraUpdateFactory.newLatLng());
 
             // preuzimanje lokacije uredjaja
-            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
             Log.e(TAG, "myLocation: " + myLocation);
             getAddressName(myLocation); // izvlaci adresu iz lokacije
             Log.w(TAG, "DEBUG: \t\t\t\t " + myLocation.getLatitude() + ", " + myLocation.getLongitude());
@@ -240,7 +244,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             float smallestDistance = -1;
             List<Location> locations = new ArrayList<>();
             for (int i = 0; i < busStops.size(); i++) { // prolazak kroz sve stanice i preuzimanje njihovih lokacija
-                Location temp = new Location(LocationManager.NETWORK_PROVIDER);
+                Location temp = new Location(LocationManager.GPS_PROVIDER);
                 temp.setLongitude(busStops.get(i).getLng());
                 temp.setLatitude(busStops.get(i).getLat());
                 locations.add(temp);
@@ -290,6 +294,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
             Marker mark = mMap.addMarker(startStation);
             mark.setTag(bs.getId());
+            markers.add(mark);
         }
 
         showAllMarkers();
@@ -378,6 +383,11 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        Log.e("MARKER TAG", marker.getTag().toString());
+        if(marker.getTag().toString().equals("BUS")){
+            Log.e("HERE", "HERE");
+            return true;
+        }
         // Toast.makeText(getActivity(), "naziv: " + marker.getTitle(), Toast.LENGTH_SHORT).show();
 
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
@@ -386,7 +396,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                         PackageManager.PERMISSION_GRANTED) {
 
             // preuzimanje lokacije uredjaja i oznacavanje lokacije
-            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
             MarkerOptions start = new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
 
             // oznacavanje lokacije markera
@@ -543,7 +553,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             int seconds = (int) (millis / 1000);
             int minutes = seconds / 60;
             seconds = seconds % 60;
-            Log.e("TIMER", "time");
             Call<Position> call = service.getPosition4();
 
             call.enqueue(new Callback<Position>() {
@@ -554,12 +563,29 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
                     if (busPositionMarker == null) {
                         busPositionMarker = mMap.addMarker(busPositionMarkerOptions);
-                        Log.e("MARKER", "Dodat");
+                        busPositionMarker.setTag("BUS");
                     } else {
                         busPositionMarker.remove();
                         busPositionMarker = mMap.addMarker(busPositionMarkerOptions);
-
+                        busPositionMarker.setTag("BUS");
                         Log.e("MARKER", "promenjena pozicija");
+
+                        SharedPreferences pref = getActivity().getSharedPreferences("Alarms", 0);
+
+                        Map<String, String> alarms = (Map<String, String>)pref.getAll();
+                        Log.e("MARKER", alarms.toString());
+
+                        for (String id : alarms.keySet()) {
+                            Log.e("MARKER", id);
+
+                            for(Marker m : markers) {
+                                if(m.getTag().toString().equals(id)) {
+                                    Log.e("FOUND", "MARKER");
+                                    new FetchURLBus(getActivity(), alarms.get(id)).execute(getUrl(busPositionMarker.getPosition(), m.getPosition(), "driving"), "driving");
+                                }
+                            }
+                        }
+
                     }
 
                 }
@@ -567,7 +593,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 @Override
                 public void onFailure(Call<Position> call, Throwable t) {
                     Log.e("ERROR:", "Something went wrong...Please try later!");
-                    // Toast.makeText(getActivity(), "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
                 }
             });
 

@@ -3,6 +3,8 @@ package com.example.pma.activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,7 +13,9 @@ import com.example.pma.R;
 import com.example.pma.adapter.SimpleRouteRecyclerViewAdapter;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
+import com.example.pma.fragment.RouteDetailFragment;
 import com.example.pma.model.BusStop;
+import com.example.pma.model.DatabaseVersion;
 import com.example.pma.model.Route;
 import com.example.pma.model.Timetable;
 import com.example.pma.network.RetrofitClientInstance;
@@ -24,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -33,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -93,37 +99,98 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDoalog.setMessage("Učitavanje....");
         progressDoalog.show();
 
+
+
+
         /*Create handle for the RetrofitInstance interface*/
-        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
-        Call<List<Route>> call = service.getAllRoutes();
-        call.enqueue(new Callback<List<Route>>() {
+        final GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        RouteSQLiteHelper dbHelper = new RouteSQLiteHelper(MainActivity.this);
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        Call<DatabaseVersion> call = service.getVersion();
+        call.enqueue(new Callback<DatabaseVersion>() {
             @Override
-            public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
-                progressDoalog.dismiss();
-                generateDataList(response.body());
+            public void onResponse(Call<DatabaseVersion> call, Response<DatabaseVersion> response) {
+                Log.e("EKSTRA", response.body().getVersion().toString());
+
+                final Integer newVersion = response.body().getVersion();
+                Log.e("EKSTRA2", String.valueOf(db.getVersion()));
+                if(db.getVersion() < newVersion) {
+                    Call<List<Route>> call2 = service.getAllRoutes();
+                    call2.enqueue(new Callback<List<Route>>() {
+                        @Override
+                        public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
+                            progressDoalog.dismiss();
+                            generateDataList(response.body(), newVersion);
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<Route>> call, Throwable t) {
+                            progressDoalog.dismiss();
+                            Toast.makeText(MainActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    progressDoalog.dismiss();
+
+                    List<Route> routeList = new ArrayList<>();
+                    Uri uri = DBContentProvider.CONTENT_URI_ROUTE;
+
+                    String[] allColumns = {RouteSQLiteHelper.COLUMN_ID, RouteSQLiteHelper.COLUMN_NAME, RouteSQLiteHelper.COLUMN_DESCRIPTION, RouteSQLiteHelper.COLUMN_CITY};
+
+                    Cursor cursor = getContentResolver().query(uri, allColumns, null, null, null);
+
+                    cursor.moveToFirst();
+                    while(!cursor.isAfterLast()) {
+
+                        Route route = new Route();
+                        route.setId(cursor.getInt(0));
+                        route.setName(cursor.getString(1));
+                        route.setDescription(cursor.getString(2));
+                        route.setCity(cursor.getString(3));
+                        routeList.add(route);
+
+                        cursor.moveToNext();
+                    }
+                    cursor.close();
+
+                    View recyclerView = findViewById(R.id.item_list);
+                    assert recyclerView != null;
+                    setupRecyclerView((RecyclerView) recyclerView, routeList);
+                }
             }
 
             @Override
-            public void onFailure(Call<List<Route>> call, Throwable t) {
+            public void onFailure(Call<DatabaseVersion> call, Throwable t) {
                 progressDoalog.dismiss();
                 Toast.makeText(MainActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
         });
+
+
+
+
+
+
+
+
        }
 
     /*Method to generate List of data using RecyclerView with custom adapter*/
-    private void generateDataList(List<Route> routeList) {
+    private void generateDataList(List<Route> routeList, Integer newVersion) {
         // Save data to the database
         Log.e(TAG, "generateDataList");
         RouteSQLiteHelper dbHelper = new RouteSQLiteHelper(MainActivity.this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        dbHelper.onUpgrade(db,1,2);
+        Log.e("EKSTRA3", newVersion.toString());
+        dbHelper.onUpgrade(db,db.getVersion(),newVersion);
         {
             for(Route r : routeList) {
                 ContentValues entry = new ContentValues();
                 entry.put(RouteSQLiteHelper.COLUMN_ID, r.getId());
                 entry.put(RouteSQLiteHelper.COLUMN_NAME, r.getName());
                 entry.put(RouteSQLiteHelper.COLUMN_DESCRIPTION, r.getDescription());
+                entry.put(RouteSQLiteHelper.COLUMN_CITY, r.getCity());
                 MainActivity.this.getContentResolver().insert(DBContentProvider.CONTENT_URI_ROUTE, entry);
 
                 for(BusStop bs : r.getBusStops()) {
@@ -149,6 +216,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }
+        dbHelper.setDatabaseVersion(newVersion);
+        db.setVersion(newVersion);
         db.close();
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
@@ -156,7 +225,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Route> routeList) {
-        recyclerView.setAdapter(new SimpleRouteRecyclerViewAdapter(this, routeList, mTwoPane));
+        List<Route> routeListCity = new ArrayList<>();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Log.e("PREFS:", prefs.getAll().toString());
+        for(Route r : routeList) {
+            Log.e("PRICA", r.getCity());
+            if(r.getCity().toLowerCase().equals(prefs.getString("city", "Novi Sad").toLowerCase())) {
+                routeListCity.add(r);
+            }
+
+        }
+        recyclerView.setAdapter(new SimpleRouteRecyclerViewAdapter(this, routeListCity, mTwoPane));
     }
 
     @Override

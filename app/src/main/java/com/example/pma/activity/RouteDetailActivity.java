@@ -18,15 +18,11 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.pma.R;
 import com.example.pma.directionHelper.TaskLoadedCallback;
+import com.example.pma.directionHelper.TaskLoadedCallbackBus;
 import com.example.pma.fragment.RouteDetailFragment;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.model.Route;
-import com.google.android.gms.maps.model.Dash;
-import com.google.android.gms.maps.model.Dot;
-import com.google.android.gms.maps.model.Gap;
-import com.google.android.gms.maps.model.JointType;
-import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -41,7 +37,7 @@ import java.util.List;
  * item details are presented side-by-side with a list of items
  * in a {@link MainActivity}.
  */
-public class RouteDetailActivity extends AppCompatActivity implements TaskLoadedCallback {
+public class RouteDetailActivity extends AppCompatActivity implements TaskLoadedCallback, TaskLoadedCallbackBus {
 
 
     private static final String TAG = "RouteDetailActivity";
@@ -61,12 +57,7 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_detail);
 
-        Toolbar toolbar = findViewById(R.id.toolbar_detail);
-        if (toolbar != null) {
-            toolbar.setTitle("DSA");
 
-        }
-        setSupportActionBar(toolbar);
 
         // Show the Up button in the action bar.
         // back button
@@ -83,6 +74,13 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
         cursor.moveToFirst();
         route = createRoute(cursor);
         cursor.close();
+
+        Toolbar toolbar = findViewById(R.id.toolbar_detail);
+        if (toolbar != null) {
+            toolbar.setTitle("Linija " + route.getName());
+
+        }
+        setSupportActionBar(toolbar);
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -196,7 +194,7 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
     public void onTaskDone(Object... values) {
 
         if(values[0] instanceof String) {
-            Log.d("DDD: ", values[0].toString());
+
             fragment.setDurationDistance(values[0].toString());
         }
         else {
@@ -204,4 +202,14 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
         }
     }
 
+    @Override
+    public void onTaskDoneBus(String value, String stationName) {
+        Log.e("DDD: ", value);
+        Log.e("DDD", stationName);
+        // TODO:
+        // value predstavlja string koji je sastavljen od udaljenosti u metrima i vremenske udaljenosti razdvojene ;
+        // ovde bi trebalo to uporediti sa vrednostima koje su postavljene u podesavanjima i pozvati notifikaciju ako je potrebno
+        // ovde se dobija i stationName tako bi trebalo da namestis da se ne salje za istu stanicu notifikacija barem nekih 2-3 minuta
+
+    }
 }
