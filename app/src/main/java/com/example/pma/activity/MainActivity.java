@@ -175,27 +175,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
-
-
-
-
-
-
-       }
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (preferences.getBoolean("alarm",false)){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel serviceChannel = new NotificationChannel(
-                        "test",
-                        "Example Service Channel",
-                        NotificationManager.IMPORTANCE_DEFAULT
-                );
-
-                NotificationManager manager = getSystemService(NotificationManager.class);
-                manager.createNotificationChannel(serviceChannel);
-            }
             scheduleJob();
+        } else {
+            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+            scheduler.cancel(1);
         }
     }
 
@@ -327,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void scheduleJob() {
         ComponentName componentName = new ComponentName (getApplicationContext(), NotificationService.class);
         JobInfo jobInfo = new JobInfo.Builder(1, componentName)
-                .setMinimumLatency(1000*10)
+                .setPeriodic(1000*60*15)
                 .build();
 
         JobScheduler jobScheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
