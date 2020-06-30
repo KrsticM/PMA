@@ -106,7 +106,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
     private List<BusStop> busStops = new ArrayList<>();
 
-    MarkerOptions stop;
+    MarkerOptions selectedMarker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -262,6 +262,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             Log.w(TAG, "najbliza: " + closestLocation.getLatitude() + ", " + closestLocation.getLongitude());
             // oznacavanje najblize stanice
             MarkerOptions stop = new MarkerOptions().position(new LatLng(closestLocation.getLatitude(), closestLocation.getLongitude()));
+            selectedMarker = stop;
 
             // preuzimanje najblize stanice kako bi preuzeli naziv
             BusStop closestBusStop = null;
@@ -348,9 +349,9 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         getAddressName(location);
 
         // crtanje polyline-a od lokacije uredjaja to markera
-        if (stop != null) {
+        if (selectedMarker != null) {
             MarkerOptions start = new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()));
-            new FetchURL(getActivity()).execute(getUrl(start.getPosition(), stop.getPosition(), "walking"), "walking");
+            new FetchURL(getActivity()).execute(getUrl(start.getPosition(), selectedMarker.getPosition(), "walking"), "walking");
         }
 
     }
@@ -400,15 +401,16 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             MarkerOptions start = new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
 
             // oznacavanje lokacije markera
-            stop = new MarkerOptions().position(new LatLng(marker.getPosition().latitude, marker.getPosition().longitude));
+            selectedMarker = new MarkerOptions().position(new LatLng(marker.getPosition().latitude, marker.getPosition().longitude));
 
             // brisanje starog polyline-a
+
             if (currentPolyline != null) {
                 currentPolyline.remove();
             }
 
             // crtanje polyline-a od lokacije uredjaja to markera
-            new FetchURL(getActivity()).execute(getUrl(start.getPosition(), stop.getPosition(), "walking"), "walking");
+            new FetchURL(getActivity()).execute(getUrl(start.getPosition(), selectedMarker.getPosition(), "walking"), "walking");
 
             // preuzianje i postavljanje naziva oznacene stanice
             TextView busStationName = getActivity().findViewById(R.id.bus_station_name);
@@ -453,6 +455,15 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             TextView duration_distance = getActivity().findViewById(R.id.duration_distance);
             String[] list = toString.split(";");
             duration_distance.setText("Šetaj " + list[1] + " (" + list[0] + ")");
+        }
+
+    }
+
+    public void setTime(String value) {
+        if (getActivity() != null) {
+            TextView time = getActivity().findViewById(R.id.time);
+            time.setText(value);
+
         }
 
     }
@@ -568,22 +579,12 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                         busPositionMarker.remove();
                         busPositionMarker = mMap.addMarker(busPositionMarkerOptions);
                         busPositionMarker.setTag("BUS");
-                        Log.e("MARKER", "promenjena pozicija");
 
-                        SharedPreferences pref = getActivity().getSharedPreferences("Alarms", 0);
 
-                        Map<String, String> alarms = (Map<String, String>)pref.getAll();
-                        Log.e("MARKER", alarms.toString());
+                        if(selectedMarker != null) {
+                            Log.e("FOUND", "MARKER");
 
-                        for (String id : alarms.keySet()) {
-                            Log.e("MARKER", id);
-
-                            for(Marker m : markers) {
-                                if(m.getTag().toString().equals(id)) {
-                                    Log.e("FOUND", "MARKER");
-                                    new FetchURLBus(getActivity(), alarms.get(id)).execute(getUrl(busPositionMarker.getPosition(), m.getPosition(), "driving"), "driving");
-                                }
-                            }
+                            new FetchURLBus(getActivity()).execute(getUrl(busPositionMarker.getPosition(), selectedMarker.getPosition(), "driving"), "driving");
                         }
 
                     }

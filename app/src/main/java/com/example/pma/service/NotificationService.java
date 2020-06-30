@@ -129,6 +129,7 @@ public class NotificationService extends JobService {
                                                 if (alarms.size() == already_notified.size()) {
                                                         jobDone = true;
                                                 }
+
                                             }
                                         }
                                     }

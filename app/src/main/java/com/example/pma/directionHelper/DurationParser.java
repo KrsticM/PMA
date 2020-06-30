@@ -13,21 +13,12 @@ public class DurationParser extends AsyncTask<String, Integer, String> {
     TaskLoadedCallbackBus taskLoadedCallbackBus;
     String directionMode = "driving";
     Boolean mode;
-    String stationName;
 
     public DurationParser(Context mContext, String directionMode, Boolean mode) {
         this.taskCallback = (TaskLoadedCallback) mContext;
         this.taskLoadedCallbackBus = (TaskLoadedCallbackBus)mContext;
         this.directionMode = directionMode;
         this.mode = mode;
-    }
-
-    public DurationParser(Context mContext, String directionMode, Boolean mode, String stationName) {
-        this.taskCallback = (TaskLoadedCallback) mContext;
-        this.taskLoadedCallbackBus = (TaskLoadedCallbackBus)mContext;
-        this.directionMode = directionMode;
-        this.mode = mode;
-        this.stationName = stationName;
     }
 
     // Parsing the data in non-ui thread
@@ -69,7 +60,7 @@ public class DurationParser extends AsyncTask<String, Integer, String> {
         if(mode) {
             taskCallback.onTaskDone(result);
         } else {
-            taskLoadedCallbackBus.onTaskDoneBus(result, stationName);
+            taskLoadedCallbackBus.onTaskDoneBus(result);
         }
 
 

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class RouteSQLiteHelper  extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "route.db";
-    private static int DATABASE_VERSION = 5;
+    private static int DATABASE_VERSION = 6;
 
     public static final String TABLE_ROUTE = "route";
     public static final String COLUMN_ID = "_id";

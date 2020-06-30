@@ -14,11 +14,9 @@ import java.net.URL;
 public class FetchURLBus extends AsyncTask<String, Void, String> {
     Context mContext;
     String directionMode = "driving";
-    String stationName;
 
-    public FetchURLBus(Context mContext, String stationName) {
+    public FetchURLBus(Context mContext) {
         this.mContext = mContext;
-        this.stationName = stationName;
     }
 
     @Override
@@ -39,7 +37,7 @@ public class FetchURLBus extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        DurationParser durationParser = new DurationParser(mContext, directionMode, false, stationName);
+        DurationParser durationParser = new DurationParser(mContext, directionMode, false);
         durationParser.execute(s);
     }
 

@@ -57,15 +57,6 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_detail);
 
-
-
-        // Show the Up button in the action bar.
-        // back button
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         uri = Uri.parse(DBContentProvider.CONTENT_URI_ROUTE + "/" + getIntent().getIntExtra(RouteDetailFragment.ARG_ROUTE_ID, 0));
 
         String[] allColumns = {RouteSQLiteHelper.COLUMN_ID, RouteSQLiteHelper.COLUMN_NAME, RouteSQLiteHelper.COLUMN_DESCRIPTION};
@@ -81,6 +72,14 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
 
         }
         setSupportActionBar(toolbar);
+
+        // Show the Up button in the action bar.
+        // back button
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -198,18 +197,24 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
             fragment.setDurationDistance(values[0].toString());
         }
         else {
-            fragment.currentPolyline = fragment.mMap.addPolyline((PolylineOptions) values[0]);
+            PolylineOptions po = (PolylineOptions) values[0];
+            if(po.getColor() == Color.rgb(192,192,192))
+            {
+                // Its walking
+                Log.e("WALKING", "ITS WALKING");
+                fragment.currentPolyline = fragment.mMap.addPolyline(po);
+            } else {
+                fragment.mMap.addPolyline(po);
+            }
+
         }
     }
 
     @Override
-    public void onTaskDoneBus(String value, String stationName) {
+    public void onTaskDoneBus(String value) {
         Log.e("DDD: ", value);
-        Log.e("DDD", stationName);
         // TODO:
-        // value predstavlja string koji je sastavljen od udaljenosti u metrima i vremenske udaljenosti razdvojene ;
-        // ovde bi trebalo to uporediti sa vrednostima koje su postavljene u podesavanjima i pozvati notifikaciju ako je potrebno
-        // ovde se dobija i stationName tako bi trebalo da namestis da se ne salje za istu stanicu notifikacija barem nekih 2-3 minuta
+        fragment.setTime(value.replace(";", " "));
 
     }
 }
