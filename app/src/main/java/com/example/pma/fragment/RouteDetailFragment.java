@@ -42,6 +42,7 @@ import com.example.pma.directionHelper.FetchURL;
 import com.example.pma.directionHelper.FetchURLBus;
 import com.example.pma.model.BusStop;
 import com.example.pma.model.Position;
+import com.example.pma.model.Positions;
 import com.example.pma.network.RetrofitClientInstance;
 import com.example.pma.service.GetDataService;
 import com.google.android.gms.maps.CameraUpdate;
@@ -199,8 +200,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        Log.e(TAG, "onMapReady");
 
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
@@ -555,52 +554,107 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     //runs without a timer by reposting this handler at the end of the runnable
     Handler timerHandler = new Handler();
     GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
-    Marker busPositionMarker;
+    Marker busPositionMarker1;
+    Marker busPositionMarker2;
+    Marker busPositionMarker3;
     Runnable timerRunnable = new Runnable() {
 
         @Override
         public void run() {
-            long millis = System.currentTimeMillis() - startTime;
-            int seconds = (int) (millis / 1000);
-            int minutes = seconds / 60;
-            seconds = seconds % 60;
-            Call<Position> call = service.getPosition4();
+            Call<Positions> call = null;
+            if (getArguments().getInt(ARG_ROUTE_ID) == 5) {
+                call = service.getPosition7();
+            } else if (getArguments().getInt(ARG_ROUTE_ID) == 4) {
+                call = service.getPosition4();
+            }
 
-            call.enqueue(new Callback<Position>() {
+            call.enqueue(new Callback<Positions>() {
                 @Override
-                public void onResponse(Call<Position> call, Response<Position> response) {
-                    MarkerOptions busPositionMarkerOptions = new MarkerOptions().position(new LatLng(response.body().getX(), response.body().getY()))
+                public void onResponse(Call<Positions> call, Response<Positions> response) {
+                    Positions positions = response.body();
+
+                    Position bus1 = positions.getPositions().get(0);
+                    Position bus2 = positions.getPositions().get(1);
+                    Position bus3 = positions.getPositions().get(2);
+
+                    // first bus marker
+                    MarkerOptions busPositionMarkerOptions1 = new MarkerOptions().position(new LatLng(bus1.getX(), bus1.getY()))
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
 
-                    if (busPositionMarker == null) {
-                        busPositionMarker = mMap.addMarker(busPositionMarkerOptions);
-                        busPositionMarker.setTag("BUS");
+                    if (busPositionMarker1 == null) {
+                        busPositionMarker1 = mMap.addMarker(busPositionMarkerOptions1);
+                        busPositionMarker1.setTag("BUS");
                     } else {
-                        busPositionMarker.remove();
-                        busPositionMarker = mMap.addMarker(busPositionMarkerOptions);
-                        busPositionMarker.setTag("BUS");
+                        busPositionMarker1.remove();
+                        busPositionMarker1 = mMap.addMarker(busPositionMarkerOptions1);
+                        busPositionMarker1.setTag("BUS");
+                    }
 
+                    // second bus marker
+                    MarkerOptions busPositionMarkerOptions2 = new MarkerOptions().position(new LatLng(bus2.getX(), bus2.getY()))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+
+                    if (busPositionMarker2 == null) {
+                        busPositionMarker2 = mMap.addMarker(busPositionMarkerOptions2);
+                        busPositionMarker2.setTag("BUS2");
+                    } else {
+                        busPositionMarker2.remove();
+                        busPositionMarker2 = mMap.addMarker(busPositionMarkerOptions2);
+                        busPositionMarker2.setTag("BUS2");
+
+                    }
+
+                    // third bus marker
+                    MarkerOptions busPositionMarkerOptions3 = new MarkerOptions().position(new LatLng(bus3.getX(), bus3.getY()))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.bus));
+
+                    if (busPositionMarker3 == null) {
+                        busPositionMarker3 = mMap.addMarker(busPositionMarkerOptions3);
+                        busPositionMarker3.setTag("BUS3");
+                    } else {
+                        busPositionMarker3.remove();
+                        busPositionMarker3 = mMap.addMarker(busPositionMarkerOptions3);
+                        busPositionMarker3.setTag("BUS3");
 
                         if(selectedMarker != null) {
                             Log.e("FOUND", "MARKER");
 
-                            new FetchURLBus(getActivity()).execute(getUrl(busPositionMarker.getPosition(), selectedMarker.getPosition(), "driving"), "driving");
+
+                            Position closestPosition = null;
+                            float smallestDistance = -1;
+                            for (Position position : positions.getPositions()) { // prolazak kroz sve lokacije i trazenje najblize u odnosu na lokaciju uredjaja
+                                LatLng myLocation = selectedMarker.getPosition();
+
+                                float[] result = {0};
+                                Location.distanceBetween(
+                                        myLocation.latitude,
+                                        myLocation.longitude,
+                                        position.getX(),
+                                        position.getY(),
+                                        result);
+
+
+                                if (smallestDistance == - 1|| result[0] < smallestDistance) {
+                                    closestPosition = position;
+                                    smallestDistance = result[0];
+                                }
+                            }
+
+
+                            new FetchURLBus(getActivity()).execute(getUrl(new LatLng(closestPosition.getX(), closestPosition.getY()), selectedMarker.getPosition(), "driving"), "driving");
                         }
-
                     }
-
                 }
-
                 @Override
-                public void onFailure(Call<Position> call, Throwable t) {
+                public void onFailure(Call<Positions> call, Throwable t) {
                     Log.e("ERROR:", "Something went wrong...Please try later!");
                 }
             });
-
-
             timerHandler.postDelayed(this, 900);
         }
     };
+
+
 }
 
 

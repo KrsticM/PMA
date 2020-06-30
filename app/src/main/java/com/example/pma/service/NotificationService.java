@@ -25,6 +25,7 @@ import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
 import com.example.pma.model.BusStop;
 import com.example.pma.model.Position;
+import com.example.pma.model.Positions;
 import com.example.pma.network.RetrofitClientInstance;
 
 import java.util.ArrayList;
@@ -72,14 +73,17 @@ public class NotificationService extends JobService {
                 while(!jobDone){
 
                     GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
-                    Call<Position> call = service.getPosition4();
+                    Call<Positions> call = service.getPosition4();
 
-                    call.enqueue(new Callback<Position>() {
+                    call.enqueue(new Callback<Positions>() {
                         @Override
-                        public void onResponse(Call<Position> call, Response<Position> response) {
+                        public void onResponse(Call<Positions> call, Response<Positions> response) {
+                            Positions positions = response.body();
 
-                            double posX = response.body().getX();
-                            double posY = response.body().getY();
+                            Position bus1 = positions.getPositions().get(0);
+
+                            double posX = bus1.getX();
+                            double posY = bus1.getY();
                             SharedPreferences pref = getBaseContext().getSharedPreferences("Alarms", 0);
                             Map<String, String> alarms = (Map<String, String>) pref.getAll();
 
@@ -140,7 +144,7 @@ public class NotificationService extends JobService {
                         }
 
                         @Override
-                        public void onFailure(Call<Position> call, Throwable t) {
+                        public void onFailure(Call<Positions> call, Throwable t) {
                             Log.e("ERROR:", "Something went wrong...Please try later!");
                         }
                     });

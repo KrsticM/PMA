@@ -202,7 +202,13 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
             {
                 // Its walking
                 Log.e("WALKING", "ITS WALKING");
-                fragment.currentPolyline = fragment.mMap.addPolyline(po);
+                if(fragment.currentPolyline != null) {
+                    fragment.currentPolyline.remove();
+                    fragment.currentPolyline = fragment.mMap.addPolyline(po);
+                } else {
+                    fragment.currentPolyline = fragment.mMap.addPolyline(po);
+                }
+
             } else {
                 fragment.mMap.addPolyline(po);
             }
