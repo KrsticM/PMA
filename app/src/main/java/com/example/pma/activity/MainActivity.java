@@ -108,11 +108,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDoalog.show();
 
 
-
+        SharedPreferences dbVersionPref = getSharedPreferences("Database", 0);
 
         /*Create handle for the RetrofitInstance interface*/
         final GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
-        RouteSQLiteHelper dbHelper = new RouteSQLiteHelper(MainActivity.this);
+        RouteSQLiteHelper dbHelper = new RouteSQLiteHelper(MainActivity.this, dbVersionPref.getInt("Version", 1));
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         Call<DatabaseVersion> call = service.getVersion();
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onFailure(Call<List<Route>> call, Throwable t) {
                             progressDoalog.dismiss();
-                            Toast.makeText(MainActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Došlo je do greške...Molimo Vas da probate opet.", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onFailure(Call<DatabaseVersion> call, Throwable t) {
                 progressDoalog.dismiss();
-                Toast.makeText(MainActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Došlo je do greške...Molimo Vas da probate opet.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -182,14 +182,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
             scheduler.cancel(1);
         }
+
+        // Set database version if app is never initialised
+//        SharedPreferences dbVersionPref = getSharedPreferences("Database", 0);
+//        SharedPreferences.Editor editor = dbVersionPref.edit();
+//
+//        if(!dbVersionPref.contains("Version")) {
+//            editor.putInt("Version", 0);
+//        }
     }
 
     /*Method to generate List of data using RecyclerView with custom adapter*/
     private void generateDataList(List<Route> routeList, Integer newVersion) {
         // Save data to the database
-        Log.e(TAG, "generateDataList");
-        RouteSQLiteHelper dbHelper = new RouteSQLiteHelper(MainActivity.this);
+        SharedPreferences dbVersionPref = getSharedPreferences("Database", 0);
+
+        RouteSQLiteHelper dbHelper = new RouteSQLiteHelper(MainActivity.this, dbVersionPref.getInt("Version", 1));
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+
         Log.e("EKSTRA3", newVersion.toString());
         dbHelper.onUpgrade(db,db.getVersion(),newVersion);
         {
@@ -224,9 +234,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }
-        dbHelper.setDatabaseVersion(newVersion);
         db.setVersion(newVersion);
         db.close();
+
+        SharedPreferences.Editor editor = dbVersionPref.edit();
+        editor.putInt("Version", newVersion);
+        editor.commit();
+
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView, routeList);

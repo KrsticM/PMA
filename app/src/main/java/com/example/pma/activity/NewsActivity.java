@@ -51,7 +51,7 @@ public class NewsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<News>> call, Throwable t) {
-                Toast.makeText(NewsActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NewsActivity.this, "Došlo je do greške...Molimo Vas da probate opet.", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -2,6 +2,7 @@ package com.example.pma.database;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -40,7 +41,8 @@ public class DBContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        database = new RouteSQLiteHelper(getContext());
+        SharedPreferences dbVersionPref = getContext().getSharedPreferences("Database", 0);
+        database = new RouteSQLiteHelper(getContext(), dbVersionPref.getInt("Version", 1));
         return true;
     }
 
