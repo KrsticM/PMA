@@ -25,6 +25,8 @@ public interface GetDataService {
     @GET("/bus/position/7")
     Call<Positions> getPosition7();
 
+    @GET("/bus/position/12")
+    Call<Positions> getPosition12();
     @GET("/version")
     Call<DatabaseVersion> getVersion();
 }

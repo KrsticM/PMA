@@ -233,7 +233,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
             // preuzimanje lokacije uredjaja
             Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
-            Log.e(TAG, "myLocation: " + myLocation);
             getAddressName(myLocation); // izvlaci adresu iz lokacije
             Log.w(TAG, "DEBUG: \t\t\t\t " + myLocation.getLatitude() + ", " + myLocation.getLongitude());
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
@@ -243,7 +242,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             float smallestDistance = -1;
             List<Location> locations = new ArrayList<>();
             for (int i = 0; i < busStops.size(); i++) { // prolazak kroz sve stanice i preuzimanje njihovih lokacija
-                Location temp = new Location(LocationManager.GPS_PROVIDER);
+                Location temp = new Location(LocationManager.GPS_PROVIDER);// NETWORK PROVIDER AKO JE NA TELEFONU
                 temp.setLongitude(busStops.get(i).getLng());
                 temp.setLatitude(busStops.get(i).getLat());
                 locations.add(temp);
@@ -429,6 +428,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
     }
 
     private void getAddressName(Location myLocation) {
+
         if (getActivity() != null) {
             Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
             try {
@@ -441,7 +441,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 // postavljanje naziva ulice (ui)
                 TextView yourLocation = getActivity().findViewById(R.id.your_location);
                 yourLocation.setText(addressName);
-                Log.d(TAG, "address " + address);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -562,15 +561,19 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         @Override
         public void run() {
             Call<Positions> call = null;
+
             if (getArguments().getInt(ARG_ROUTE_ID) == 5) {
                 call = service.getPosition7();
             } else if (getArguments().getInt(ARG_ROUTE_ID) == 4) {
                 call = service.getPosition4();
+            } else if (getArguments().getInt(ARG_ROUTE_ID) == 6){
+                call = service.getPosition12();
             }
 
             call.enqueue(new Callback<Positions>() {
                 @Override
                 public void onResponse(Call<Positions> call, Response<Positions> response) {
+
                     Positions positions = response.body();
 
                     Position bus1 = positions.getPositions().get(0);
@@ -617,9 +620,6 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                         busPositionMarker3.setTag("BUS3");
 
                         if(selectedMarker != null) {
-                            Log.e("FOUND", "MARKER");
-
-
                             Position closestPosition = null;
                             float smallestDistance = -1;
                             for (Position position : positions.getPositions()) { // prolazak kroz sve lokacije i trazenje najblize u odnosu na lokaciju uredjaja
@@ -648,6 +648,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 @Override
                 public void onFailure(Call<Positions> call, Throwable t) {
                     Log.e("ERROR:", "Something went wrong...Please try later!");
+
                 }
             });
             timerHandler.postDelayed(this, 900);
