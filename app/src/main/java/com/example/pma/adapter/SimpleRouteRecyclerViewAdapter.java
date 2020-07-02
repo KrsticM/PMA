@@ -14,11 +14,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pma.R;
-import com.example.pma.activity.MainActivity;
 import com.example.pma.activity.RouteDetailActivity;
 import com.example.pma.fragment.RouteDetailFragment;
 import com.example.pma.model.Route;
@@ -81,13 +79,9 @@ public class SimpleRouteRecyclerViewAdapter extends RecyclerView.Adapter<SimpleR
 
         SharedPreferences pref = mParentActivity.getSharedPreferences("Favorites", 0); // 0 - for private mode
         if(pref.contains(mValues.get(position).getId().toString())) {
-            Log.e("Usao", "Its favorite");
-            //holder.mImageButton.setImageAlpha(1);
             holder.mImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#ADFFE700")));
 
         } else {
-            Log.e("Usao", "It's not favorite");
-            //holder.mImageButton.setImageAlpha(0);
             holder.mImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#A9A9A9")));
         }
 

@@ -68,8 +68,6 @@ public class DBContentProvider extends ContentProvider {
             case ROUTE_STOPS:
                 int length = uri.getPathSegments().size();
                 String route_id = uri.getPathSegments().get(length-2); // Uzimamo pretposlednji path segment jer je to route id
-                Log.d(TAG, "length: " + length + ", route_id " + route_id);
-
                 queryBuilder.appendWhere(RouteSQLiteHelper.COLUMN_ROUTE_ID + "=" + route_id);
                 queryBuilder.setTables(RouteSQLiteHelper.TABLE_BUSSTOP);
                 break;
@@ -78,7 +76,6 @@ public class DBContentProvider extends ContentProvider {
                 String id = uri.getPathSegments().get(size-2); // Uzimamo pretposlednji path segment jer je to route id
                 queryBuilder.appendWhere(RouteSQLiteHelper.COLUMN_ROUTE_ID + "=" + id);
                 queryBuilder.setTables(RouteSQLiteHelper.TABLE_TIMETABLE);
-                Log.d(TAG, "size: " + size + ", id " + id);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);

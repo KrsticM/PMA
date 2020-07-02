@@ -2,7 +2,6 @@ package com.example.pma.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.pma.R;
 import com.example.pma.model.News;
-import com.example.pma.model.Route;
 import com.example.pma.network.RetrofitClientInstance;
 import com.example.pma.service.GetDataService;
 
@@ -72,7 +70,6 @@ public class NewsActivity extends AppCompatActivity {
 
         Context context;
         List<News> news_list;
-
 
         MyAdapter(Context c, List<News> news) {
 

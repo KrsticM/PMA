@@ -104,7 +104,6 @@ public class TimeTableActivity extends AppCompatActivity implements AdapterView.
         tt.setId(cursor.getInt(0));
         tt.setType(cursor.getString(1));
         tt.setContent(cursor.getString(2));
-        Log.e(TAG, "DEBUG: DODAT TIMETABLE \t\t\t " + tt.getType() + " \t\t " + tt.getContent());
         timetableArrayList.add(tt);
     }
 
@@ -136,7 +135,6 @@ public class TimeTableActivity extends AppCompatActivity implements AdapterView.
             if(tt.getType().equals(text)) {
                 String[] splited = tt.getContent().split(";");
                 for(int j = 0; j < splited.length; j++) {
-                    Log.d(TAG, "splited " + splited[j]);
                     adapter.add(splited[j]);
                 }
             }

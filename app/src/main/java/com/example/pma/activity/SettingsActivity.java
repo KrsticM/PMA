@@ -5,12 +5,10 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
 import com.example.pma.R;
 import com.example.pma.service.NotificationService;

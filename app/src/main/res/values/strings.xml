@@ -34,4 +34,18 @@
         <item>Subota</item>
         <item>Nedelja</item>
     </string-array>
+
+    <!-- Activity route detail -->
+    <string name="more_info">Više informacija</string>
+    <string name="your_location">Tvoja lokacija</string>
+    <string name="work_for">Šetaj 9 min (0.5 mi)</string>
+    <string name="bus_stop_name">Naziv stanice</string>
+    <string name="time">12:33</string>
+    <string name="timetable">Raspored polazaka</string>
+
+    <!-- Activity time table -->
+    <string name="day">Dan:</string>
+
+    <!-- Custom info window -->
+    <string name="some_text">some text</string>
 </resources>

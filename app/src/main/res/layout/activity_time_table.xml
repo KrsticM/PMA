@@ -19,7 +19,7 @@
             android:layout_margin="@dimen/desc_margin"
             android:textColor="@android:color/black"
             android:textSize="16dp"
-            android:text="Dan:"/>
+            android:text="@string/day"/>
 
         <Spinner
             android:id="@+id/spinner_days"
@@ -27,7 +27,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/desc_margin"
-
             />
 
     </LinearLayout>
