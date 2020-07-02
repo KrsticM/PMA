@@ -67,9 +67,8 @@ public class NotificationService extends JobService {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d("DDD", "Calculate distance");
                 //Koje su stanice oznacene
-                final ArrayList<Integer> already_notified = new ArrayList();
+                final ArrayList<String> already_notified = new ArrayList();
                 while(!jobDone){
 
                     GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
@@ -80,14 +79,11 @@ public class NotificationService extends JobService {
                         public void onResponse(Call<Positions> call, Response<Positions> response) {
                             Positions positions = response.body();
 
-                            Position bus1 = positions.getPositions().get(0);
-
-                            double posX = bus1.getX();
-                            double posY = bus1.getY();
+                            ArrayList<Position> bus1 = new ArrayList<>(positions.getPositions());
                             SharedPreferences pref = getBaseContext().getSharedPreferences("Alarms", 0);
                             Map<String, String> alarms = (Map<String, String>) pref.getAll();
 
-                            Log.d("AAAAA", "dobio poziciju" + String.valueOf(posX) + " " + String.valueOf(posY));
+                           // Log.d("AAAAA", "dobio poziciju" + String.valueOf(posX) + " " + String.valueOf(posY));
                             for (String id : alarms.keySet()) {
                                 // uzeti podatke o stanici
                                 Uri uri = Uri.parse(DBContentProvider.CONTENT_URI_ROUTE + "/4/stop");
@@ -104,36 +100,47 @@ public class NotificationService extends JobService {
                                         Double positionY = cursor.getDouble(3);
                                         Log.d("AA", name + String.valueOf(positionX));
 
-                                        //Racunaj udaljenost izmedju stanice i trenutne pozicije autobusa
-                                        double distance = calculateDistance(posX, posY, positionX, positionY); // Racuna udaljenost u tackama
-                                        double time_distance = (distance/8.33333)/60; // Distanca u sekundama racunamo da se krece prosecno 30km/h
-                                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                                        for (int i = 0; i < bus1.size(); i++) {
+                                            double posX = bus1.get(i).getX();
+                                            double posY = bus1.get(i).getY();
 
-                                        double settings_distance = Double.parseDouble(preferences.getString("distance_meters", "0 m").split(" ")[0]);
-                                        double setting_time_distance = Double.parseDouble(preferences.getString("time","0 min").split(" ")[0]);
-                                        if (settings_distance > distance || setting_time_distance > time_distance) {
-                                            if (already_notified.contains(cursor.getInt(0))){
-                                                break; 
-                                            } else {
-                                                already_notified.add(cursor.getInt(0));
+                                            //Racunaj udaljenost izmedju stanice i trenutne pozicije autobusa
+                                            double distance = calculateDistance(posX, posY, positionX, positionY); // Racuna udaljenost u tackama
+                                            double time_distance = (distance / 8.33333) / 60; // Distanca u sekundama racunamo da se krece prosecno 30km/h
+                                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-                                                Intent notificationIntent = new Intent(getBaseContext(), MainActivity.class);
-                                                PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(),
-                                                        0, notificationIntent, 0);
-                                                NotificationCompat.Builder mBuilder =
-                                                        new NotificationCompat.Builder(getApplicationContext(), "test")
-                                                                .setContentIntent(pendingIntent)
-                                                                .setOnlyAlertOnce(true)
-                                                                .setSmallIcon(R.drawable.ic_bus)
-                                                                .setContentTitle("Stanica: " + name)
-                                                                .setContentText("Autobus je na udaljenosti od " + String.format("%.1f", distance) + " metara ili "+  String.format("%.1f", time_distance) + " min");
-                                                NotificationManager mNotificationManager =
-                                                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                                                mNotificationManager.notify(Integer.valueOf(id), mBuilder.build());
-                                                if (alarms.size() == already_notified.size()) {
-                                                        jobDone = true;
+                                            double settings_distance = Double.parseDouble(preferences.getString("distance_meters", "0 m").split(" ")[0]);
+                                            double setting_time_distance = Double.parseDouble(preferences.getString("time_distance", "0 min").split(" ")[0]);
+                                            if (settings_distance > distance || setting_time_distance > time_distance) {
+
+                                                //Ako je vec za trenutni bus i trenutnu stanicu poslata notifikacija preskoci
+                                                if (already_notified.contains(cursor.getInt(0) + "-" + i)) {
+                                                    break;
+                                                } else {
+                                                    already_notified.add(cursor.getInt(0) + "-" + i);
+
+                                                    Intent notificationIntent = new Intent(getBaseContext(), MainActivity.class);
+                                                    PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(),
+                                                            0, notificationIntent, 0);
+                                                    NotificationCompat.Builder mBuilder =
+                                                            new NotificationCompat.Builder(getApplicationContext(), "test")
+                                                                    .setContentIntent(pendingIntent)
+                                                                    .setOnlyAlertOnce(true)
+                                                                    .setSmallIcon(R.drawable.ic_bus)
+                                                                    .setContentTitle("Stanica: " + name)
+                                                                    .setContentText("Autobus je na udaljenosti od " + String.format("%.1f", distance) + " metara odnosno " + String.format("%.1f", time_distance) + " min");
+                                                    NotificationManager mNotificationManager =
+                                                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                                    mNotificationManager.notify(Integer.valueOf(id), mBuilder.build());
+
+                                                //Ako su sva tri busa prosla kroz sve stanice isprazni niz
+                                                if (alarms.size()*3 == already_notified.size()) {
+                                                    already_notified.clear();
+                                                    //Zbog testiranja necemo prekidati rad niti
+                                                    //jobDone = true;
                                                 }
 
+                                                }
                                             }
                                         }
                                     }
