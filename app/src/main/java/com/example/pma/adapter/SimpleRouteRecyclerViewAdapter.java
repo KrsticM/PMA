@@ -79,11 +79,9 @@ public class SimpleRouteRecyclerViewAdapter extends RecyclerView.Adapter<SimpleR
 
         SharedPreferences pref = mParentActivity.getSharedPreferences("Favorites", 0); // 0 - for private mode
         if(pref.contains(mValues.get(position).getId().toString())) {
-            Log.e("Usao", "Its favorite");
             holder.mImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#ADFFE700")));
 
         } else {
-            Log.e("Usao", "It's not favorite");
             holder.mImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#A9A9A9")));
         }
 

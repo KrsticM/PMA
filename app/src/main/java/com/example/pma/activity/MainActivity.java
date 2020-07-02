@@ -98,10 +98,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mTwoPane = true;
         }
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences.getBoolean("alarm",false)){
+            scheduleJob();
+        } else {
+            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+            scheduler.cancel(1);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadRoutes();
+    }
+
+    private void loadRoutes() {
         progressDoalog = new ProgressDialog(MainActivity.this);
         progressDoalog.setMessage("Učitavanje....");
         progressDoalog.show();
-
 
         SharedPreferences dbVersionPref = getSharedPreferences("Database", 0);
 
@@ -166,22 +181,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(MainActivity.this, "Došlo je do greške...Molimo Vas da probate opet.", Toast.LENGTH_SHORT).show();
             }
         });
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (preferences.getBoolean("alarm",false)){
-            scheduleJob();
-        } else {
-            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-            scheduler.cancel(1);
-        }
-
-        // Set database version if app is never initialised
-//        SharedPreferences dbVersionPref = getSharedPreferences("Database", 0);
-//        SharedPreferences.Editor editor = dbVersionPref.edit();
-//
-//        if(!dbVersionPref.contains("Version")) {
-//            editor.putInt("Version", 0);
-//        }
     }
 
     /*Method to generate List of data using RecyclerView with custom adapter*/

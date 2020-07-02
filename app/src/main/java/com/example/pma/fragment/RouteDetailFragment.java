@@ -228,10 +228,10 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
             // TODO:
             // preuzimanje lokacije uredjaja
-            //Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
-            Location myLocation = new Location("");
-            myLocation.setLatitude(45.243114d);
-            myLocation.setLongitude(19.842992d);
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+//            Location myLocation = new Location("");
+//            myLocation.setLatitude(45.243114d);
+//            myLocation.setLongitude(19.842992d);
             getAddressName(myLocation); // izvlaci adresu iz lokacije
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
             MarkerOptions start = new MarkerOptions().position(latLng); // oznacavanje lokacije uredjaja
@@ -390,10 +390,10 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
             // TODO:
             // preuzimanje lokacije uredjaja i oznacavanje lokacije
-            //Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
-            Location myLocation = new Location("");
-            myLocation.setLatitude(45.243114d);
-            myLocation.setLongitude(19.842992d);
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+//            Location myLocation = new Location("");
+//            myLocation.setLatitude(45.243114d);
+//            myLocation.setLongitude(19.842992d);
             //45.243114, 19.842992
 
             MarkerOptions start = new MarkerOptions().position(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()));
@@ -552,6 +552,10 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
                 call = service.getPosition4();
             } else if (getArguments().getInt(ARG_ROUTE_ID) == 6){
                 call = service.getPosition12();
+            }
+
+            if(call == null) {
+                return;
             }
 
             call.enqueue(new Callback<Positions>() {

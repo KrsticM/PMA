@@ -65,7 +65,7 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
         Toolbar toolbar = findViewById(R.id.toolbar_detail);
         if (toolbar != null) {
             toolbar.setTitle("Linija " + route.getName());
-
+            toolbar.setSubtitle(route.getDescription());
         }
         setSupportActionBar(toolbar);
 
@@ -150,10 +150,7 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
                 editor.commit();
             }
         });
-
-
     }
-
 
     private Route createRoute(Cursor cursor) {
         Route route = new Route();
