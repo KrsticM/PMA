@@ -4,7 +4,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClientInstance {
     private static Retrofit retrofit;
-    private static final String BASE_URL = "http://192.168.1.5:8080"; // TODO: promeni na svoju IP adresu :)
+    private static final String BASE_URL = "http://192.168.1.6:8080"; // TODO: promeni na svoju IP adresu :)
 
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {

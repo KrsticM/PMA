@@ -1,7 +1,5 @@
 package com.example.pma.activity;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -12,14 +10,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.example.pma.R;
 import com.example.pma.adapter.SimpleRouteRecyclerViewAdapter;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
-import com.example.pma.fragment.RouteDetailFragment;
 import com.example.pma.model.BusStop;
 import com.example.pma.model.DatabaseVersion;
 import com.example.pma.model.Route;
@@ -47,7 +43,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -119,10 +114,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         call.enqueue(new Callback<DatabaseVersion>() {
             @Override
             public void onResponse(Call<DatabaseVersion> call, Response<DatabaseVersion> response) {
-                Log.e("EKSTRA", response.body().getVersion().toString());
 
                 final Integer newVersion = response.body().getVersion();
-                Log.e("EKSTRA2", String.valueOf(db.getVersion()));
                 if(db.getVersion() < newVersion) {
                     Call<List<Route>> call2 = service.getAllRoutes();
                     call2.enqueue(new Callback<List<Route>>() {
@@ -150,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     cursor.moveToFirst();
                     while(!cursor.isAfterLast()) {
-
                         Route route = new Route();
                         route.setId(cursor.getInt(0));
                         route.setName(cursor.getString(1));
@@ -200,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         RouteSQLiteHelper dbHelper = new RouteSQLiteHelper(MainActivity.this, dbVersionPref.getInt("Version", 1));
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        Log.e("EKSTRA3", newVersion.toString());
         dbHelper.onUpgrade(db,db.getVersion(),newVersion);
         {
             for(Route r : routeList) {
@@ -212,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MainActivity.this.getContentResolver().insert(DBContentProvider.CONTENT_URI_ROUTE, entry);
 
                 for(BusStop bs : r.getBusStops()) {
-                    Log.e(TAG, bs.getName());
                     ContentValues busStopEntry = new ContentValues();
                     busStopEntry.put(RouteSQLiteHelper.COLUMN_ID, bs.getId());
                     busStopEntry.put(RouteSQLiteHelper.COLUMN_NAME, bs.getName());
@@ -249,13 +239,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Route> routeList) {
         List<Route> routeListCity = new ArrayList<>();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Log.e("PREFS:", prefs.getAll().toString());
         for(Route r : routeList) {
-            Log.e("PRICA", r.getCity());
             if(r.getCity().toLowerCase().equals(prefs.getString("city", "Novi Sad").toLowerCase())) {
                 routeListCity.add(r);
             }
-
         }
         recyclerView.setAdapter(new SimpleRouteRecyclerViewAdapter(this, routeListCity, mTwoPane));
     }
@@ -299,15 +286,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        // Toast.makeText(this, "Navigation item selected", Toast.LENGTH_SHORT).show();
         switch (menuItem.getItemId()) {
             case R.id.all_routs:
-                // Toast.makeText(this, "Kliknuto sve rute", Toast.LENGTH_SHORT).show();
                 Intent intent= new Intent(MainActivity.this,MainActivity.class);
                 startActivity(intent);
                 break;
             case R.id.settings:
-                // Toast.makeText(this, "Kliknuto podesavanje", Toast.LENGTH_SHORT).show();
                 Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intentSettings);
                 break;

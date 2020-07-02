@@ -26,10 +26,6 @@ import com.example.pma.model.Route;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * An activity representing a single Item detail screen. This
@@ -104,7 +100,6 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
             getSupportFragmentManager().beginTransaction().add(R.id.route_detail_container, fragment).commit();
         } else {
             fragment = (RouteDetailFragment)getSupportFragmentManager().findFragmentById(R.id.route_detail_container);
-            Log.e(TAG, "PRONASLI FRAGMENT");
         }
 
         View bottomSheet = findViewById(R.id.bottom_sheet);
@@ -118,10 +113,7 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
             @Override
             public void onClick(View v)
             {
-                // Toast.makeText(RouteDetailActivity.this, "Clicked", Toast.LENGTH_LONG).show();
                 Intent activity2Intent = new Intent(RouteDetailActivity.this, TimeTableActivity.class);
-                // Toast.makeText(RouteDetailActivity.this, route.content, Toast.LENGTH_LONG).show();
-                Log.d(TAG, "DEBUG route_id " + route.getId());
                 activity2Intent.putExtra("route_id", route.getId());
                 activity2Intent.putExtra("route_name", route.getName());
                 activity2Intent.putExtra("route_description", route.getDescription());
@@ -132,13 +124,13 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
         final FloatingActionButton fab = findViewById(R.id.fab);
         SharedPreferences pref = getSharedPreferences("Favorites", 0); // 0 - for private mode
         if(pref.contains(route.getId().toString())) {
+            // ruta je omiljena
             Log.e("zvezdica", "Ruta je omiljena");
-            //holder.mImageButton.setImageAlpha(1);
             fab.setImageTintList(ColorStateList.valueOf(Color.parseColor("#ADFFE700")));
 
         } else {
+            // ruta nije omiljena
             Log.e("zvezdica", "Ruta nije omiljena");
-            //holder.mImageButton.setImageAlpha(0);
             fab.setImageTintList(ColorStateList.valueOf(Color.parseColor("#A9A9A9")));
         }
 
@@ -149,12 +141,10 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
                 if(pref.contains(route.getId().toString())) { // It's favorite, do unfav
                     Log.e("zvezdica", "kliknuto unfave ");
                     editor.remove(route.getId().toString()); // Remove from fav
-                    //holder.mImageButton.setImageResource(R.drawable.round_star_button);
                     fab.setImageTintList(ColorStateList.valueOf(Color.parseColor("#A9A9A9")));
                 } else {
-                    Log.e("Kliknuto", "fav");
+                    Log.e("zvezdica", "kliknuto fav");
                     editor.putString(route.getId().toString(), route.getName().toString()); // Add to fav
-                    //holder.mImageButton.setImageResource(R.drawable.silver_line);
                     fab.setImageTintList(ColorStateList.valueOf(Color.parseColor("#ADFFE700")));
                 }
                 editor.commit();
@@ -201,7 +191,6 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
             if(po.getColor() == Color.rgb(192,192,192))
             {
                 // Its walking
-                Log.e("WALKING", "ITS WALKING");
                 if(fragment.currentPolyline != null) {
                     fragment.currentPolyline.remove();
                     fragment.currentPolyline = fragment.mMap.addPolyline(po);
@@ -218,7 +207,6 @@ public class RouteDetailActivity extends AppCompatActivity implements TaskLoaded
 
     @Override
     public void onTaskDoneBus(String value) {
-        Log.e("DDD: ", value);
         // TODO:
         fragment.setTime(value.replace(";", " "));
 

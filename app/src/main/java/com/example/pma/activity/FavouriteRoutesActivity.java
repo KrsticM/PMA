@@ -1,16 +1,11 @@
 package com.example.pma.activity;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.ContentValues;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +15,6 @@ import com.example.pma.R;
 import com.example.pma.adapter.SimpleRouteRecyclerViewAdapter;
 import com.example.pma.database.DBContentProvider;
 import com.example.pma.database.RouteSQLiteHelper;
-import com.example.pma.model.BusStop;
 import com.example.pma.model.Route;
 
 import java.util.ArrayList;
