@@ -1,6 +1,5 @@
 package com.example.pma.service;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,7 +13,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
@@ -30,9 +28,6 @@ import com.example.pma.network.RetrofitClientInstance;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -42,7 +37,6 @@ public class NotificationService extends JobService {
     private boolean jobDone = false;
     @Override
     public boolean onStartJob(JobParameters params) {
-        Log.d("DDD", "Job started");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
                     "test",
@@ -58,7 +52,6 @@ public class NotificationService extends JobService {
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        Log.d("DDD","Job Stopped");
         jobDone = true;
         return true;
     }
@@ -83,7 +76,6 @@ public class NotificationService extends JobService {
                             SharedPreferences pref = getBaseContext().getSharedPreferences("Alarms", 0);
                             Map<String, String> alarms = (Map<String, String>) pref.getAll();
 
-                           // Log.d("AAAAA", "dobio poziciju" + String.valueOf(posX) + " " + String.valueOf(posY));
                             for (String id : alarms.keySet()) {
                                 // uzeti podatke o stanici
                                 Uri uri = Uri.parse(DBContentProvider.CONTENT_URI_ROUTE + "/4/stop");
@@ -98,7 +90,6 @@ public class NotificationService extends JobService {
                                         String name = cursor.getString(1);
                                         Double positionX = cursor.getDouble(2);
                                         Double positionY = cursor.getDouble(3);
-                                        Log.d("AA", name + String.valueOf(positionX));
 
                                         for (int i = 0; i < bus1.size(); i++) {
                                             double posX = bus1.get(i).getX();
@@ -139,7 +130,6 @@ public class NotificationService extends JobService {
                                                     //Zbog testiranja necemo prekidati rad niti
                                                     //jobDone = true;
                                                 }
-
                                                 }
                                             }
                                         }
@@ -162,7 +152,6 @@ public class NotificationService extends JobService {
                         e.printStackTrace();
                     }
                 }
-                Log.d("DDD", "Job finished");
                 jobFinished(params, false);
             }
         }).start();
