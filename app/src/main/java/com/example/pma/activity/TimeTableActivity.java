@@ -126,7 +126,6 @@ public class TimeTableActivity extends AppCompatActivity implements AdapterView.
     @Override
     public  void onItemSelected(AdapterView<?> parent, View view, int position, long i) {
         String text = parent.getItemAtPosition(position).toString();
-        Toast.makeText(parent.getContext(), text, Toast.LENGTH_SHORT).show();
 
         if(!adapter.isEmpty()) {
             adapter = new ArrayAdapter<String>(this, R.layout.mytextview);

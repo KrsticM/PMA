@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onFailure(Call<List<Route>> call, Throwable t) {
                             progressDoalog.dismiss();
+                            Log.e("Greska", "1");
                             Toast.makeText(MainActivity.this, "Došlo je do greške...Molimo Vas da probate opet.", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -178,6 +179,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onFailure(Call<DatabaseVersion> call, Throwable t) {
                 progressDoalog.dismiss();
+                Log.d("Greska", t.getMessage());
+                Log.e("Greska", "2");
                 Toast.makeText(MainActivity.this, "Došlo je do greške...Molimo Vas da probate opet.", Toast.LENGTH_SHORT).show();
             }
         });

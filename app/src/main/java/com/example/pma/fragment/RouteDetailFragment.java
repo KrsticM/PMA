@@ -343,7 +343,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
         // crtanje polyline-a od lokacije uredjaja to markera
         if (selectedMarker != null) {
             MarkerOptions start = new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()));
-            new FetchURL(getActivity()).execute(getUrl(start.getPosition(), selectedMarker.getPosition(), "walking"), "walking");
+            //new FetchURL(getActivity()).execute(getUrl(start.getPosition(), selectedMarker.getPosition(), "walking"), "walking");
         }
 
     }
