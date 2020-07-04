@@ -223,12 +223,12 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             }
 
             locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
             // mMap.moveCamera(CameraUpdateFactory.newLatLng());
 
             // TODO:
             // preuzimanje lokacije uredjaja
-            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
 //            Location myLocation = new Location("");
 //            myLocation.setLatitude(45.243114d);
 //            myLocation.setLongitude(19.842992d);
@@ -240,7 +240,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
             float smallestDistance = -1;
             List<Location> locations = new ArrayList<>();
             for (int i = 0; i < busStops.size(); i++) { // prolazak kroz sve stanice i preuzimanje njihovih lokacija
-                Location temp = new Location(LocationManager.GPS_PROVIDER);// NETWORK PROVIDER AKO JE NA TELEFONU
+                Location temp = new Location(LocationManager.NETWORK_PROVIDER);// NETWORK PROVIDER AKO JE NA TELEFONU
                 temp.setLongitude(busStops.get(i).getLng());
                 temp.setLatitude(busStops.get(i).getLat());
                 locations.add(temp);
@@ -390,7 +390,7 @@ public class RouteDetailFragment extends Fragment implements OnMapReadyCallback,
 
             // TODO:
             // preuzimanje lokacije uredjaja i oznacavanje lokacije
-            Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
+            Location myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // NETWORK PROVIDER AKO JE NA TELEFONU
 //            Location myLocation = new Location("");
 //            myLocation.setLatitude(45.243114d);
 //            myLocation.setLongitude(19.842992d);
